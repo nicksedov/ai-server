@@ -38,7 +38,7 @@ async def generate_image(
     steps = body.steps
     prompt = body.prompt
     if content_language:
-        prompt = await translateToEnglish(body.prompt, content_language)
+        prompt = await translate_to_english(body.prompt, content_language)
 
     # Инициализация первого пайплайна
     pipeline = FluxPipeline.from_pretrained(
