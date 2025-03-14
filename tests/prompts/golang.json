@@ -1,0 +1,10 @@
+{ 
+     "model": "saiga_gemma2_9b-bf16", 
+     "messages": [
+          {"role": "system", 
+          "content": "Ты ассистент разработчика на Go. Ты умеешь писать код."}, 
+          {"role": "user", 
+          "content": "Напиши код чат-бота, который взаимодействует с LocalAI."}
+     ],
+     "temperature": 0.7
+}
