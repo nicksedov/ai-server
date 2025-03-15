@@ -25,6 +25,8 @@ COPY . .
 # Переменные окружения по умолчанию
 ENV STORAGE_ROOT=/app/storage
 ENV PYTHONUNBUFFERED=1
+ENV HF_HOME=${STORAGE_ROOT}/huggingface
+ENV HUGGINGFACE_HUB_CACHE=${STORAGE_ROOT}/huggingface
 
 # Создание директории для хранения данных
 RUN mkdir -p ${STORAGE_ROOT}/AI/output/flux && \
