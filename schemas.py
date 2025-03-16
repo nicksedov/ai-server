@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-class ImageRequestBody(BaseModel):
+class ImageRequest(BaseModel):
     model: str
     steps: int
     prompt: str

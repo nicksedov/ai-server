@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Request
-from schemas import ImageRequestBody
+from typing import Annotated
+from fastapi import APIRouter, Request, Header
+from schemas import ImageRequest
 from utils import flush, translate_to_english
 from config import config
 import torch
@@ -31,9 +32,9 @@ router = APIRouter(prefix="/v1")
 @router.post("/images/generations")
 async def generate_image(
         request: Request, 
-        body: ImageRequestBody,
+        body: ImageRequest,
+        content_language: Annotated[str | None, Header()] = None,
     ):
-    content_language = request.headers.get('Content-Language')
     ckpt_id = body.model
     steps = body.steps
     prompt = body.prompt

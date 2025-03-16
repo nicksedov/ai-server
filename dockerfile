@@ -1,5 +1,5 @@
-# Базовый образ с CUDA 12.4 и Ubuntu 22.04
-FROM nvidia/cuda:12.4.0-runtime-ubuntu22.04
+# Базовый образ с CUDA 12.8 и Ubuntu 22.04
+FROM nvidia/cuda:12.8.1-runtime-ubuntu22.04
 
 # Установка системных зависимостей
 RUN apt-get update && apt-get install -y \
@@ -20,7 +20,9 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 # Копирование исходного кода
-COPY . .
+COPY *.py .
+COPY *.yaml .
+COPY routes/*.py ./routes/
 
 # Переменные окружения по умолчанию
 ENV STORAGE_ROOT=/app/storage
