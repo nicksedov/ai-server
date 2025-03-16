@@ -79,9 +79,9 @@ async def chat_completion(request: ChatCompletionRequest):
                 "finish_reason": "stop" if ollama_response["done"] else "length"
             }],
             "usage": {
-                "prompt_tokens": -1,  # Ollama не предоставляет эту информацию
-                "completion_tokens": -1,
-                "total_tokens": -1
+                "prompt_tokens": ollama_response["prompt_eval_count"],  # Ollama не предоставляет эту информацию
+                "completion_tokens": ollama_response["eval_count"],
+                "total_tokens": ollama_response["prompt_eval_count"] + ollama_response["eval_count"]
             }
         }
 
