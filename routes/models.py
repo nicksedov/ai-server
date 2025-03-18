@@ -76,7 +76,7 @@ async def list_models():
                         created = int(time.time())  # Fallback
                     
                     # Формируем идентификатор модели
-                    model_id = repo.repo_id.replace("/", "_")  # Альтернатива для совместимости
+                    # model_id = repo.repo_id.replace("/", "_")  # Альтернатива для совместимости
                     
                     # Используем имя из конфига репозитория
                     if hasattr(repo, 'repo_name'):

@@ -34,13 +34,14 @@ router = APIRouter(prefix="/v1")
 async def generate_image(
         request: Request, 
         body: ImageRequest,  # Тело запроса, валидируемое схемой ImageRequest
-        content_language: Annotated[str | None, Header()] = None,  # Язык промпта из заголовка
+        content_language: Annotated[str | None, Header()] = 'auto',  # Язык промпта из заголовка
     ):
     # Извлечение параметров из тела запроса
     ckpt_id = body.model       # Идентификатор модели
     steps = body.steps          # Количество шагов генерации
     prompt = body.prompt        # Текст промпта
-    if content_language:
+    guidance_scale = body.guidance_scale # Коэффициент соблюдения промпта
+    if content_language and content_language != 'en':
         # Автоматический перевод промпта на английский (модель работает с английским текстом)
         prompt = await translate_to_english(body.prompt, content_language)
 
@@ -100,7 +101,7 @@ async def generate_image(
         prompt_embeds=prompt_embeds,             # Эмбеддинги из первого этапа
         pooled_prompt_embeds=pooled_prompt_embeds,
         num_inference_steps=steps,              # Количество шагов денойзинга
-        guidance_scale=3.5,                     # Коэффициент соблюдения промпта
+        guidance_scale=guidance_scale,          # Коэффициент соблюдения промпта
         height=height,
         width=width,
         output_type="latent",                   # Возвращаем сырые латенты

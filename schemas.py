@@ -1,10 +1,11 @@
 from pydantic import BaseModel
 
 class ImageRequest(BaseModel):
-    model: str
-    steps: int
+    model: str = 'black-forest-labs_FLUX.1-dev'
+    steps: int = 50
     prompt: str
-    size: str
+    size: str = '1280x720'
+    guidance_scale: float = 5.0
 
 class ChatMessage(BaseModel):
     role: str
