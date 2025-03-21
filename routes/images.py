@@ -1,8 +1,9 @@
 from typing import Annotated
-from fastapi import APIRouter, Request, Header  # Базовые компоненты FastAPI
+from fastapi import APIRouter, Request, Header, Depends  # Базовые компоненты FastAPI
 from schemas import ImageRequest  # Pydantic-схема для валидации запросов
 from utils import flush, translate_to_english  # Вспомогательные утилиты
 from config import config  # Конфигурационные параметры приложения
+from auth import verify_auth # Аутентификация
 import torch  # Основная библиотека для работы с нейросетями
 from diffusers import FluxPipeline, AutoencoderKL, FluxTransformer2DModel  # Компоненты модели диффузии
 from diffusers.image_processor import VaeImageProcessor  # Обработчик изображений для VAE
@@ -30,7 +31,7 @@ router = APIRouter(prefix="/v1")
 #  -d '{"model":"black-forest-labs/FLUX.1-dev", "steps":50, "prompt":"Красная Шапочка встречеет волка", "size": "512x512"}' \
 #  http://localhost:8000/v1/images/generations
 #
-@router.post("/images/generations")
+@router.post("/images/generations", dependencies=[Depends(verify_auth)])
 async def generate_image(
         request: Request, 
         body: ImageRequest,  # Тело запроса, валидируемое схемой ImageRequest

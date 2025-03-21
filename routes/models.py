@@ -1,8 +1,10 @@
-from fastapi import APIRouter, HTTPException,  status
+from fastapi import APIRouter, HTTPException, Depends, status
 from huggingface_hub import scan_cache_dir, HFCacheInfo,  snapshot_download, HfApi
 from config import config
+from auth import verify_auth
 from schemas import DownloadRequest, DeleteRequest
 from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 import requests
 import asyncio
 import time
@@ -20,7 +22,7 @@ logger = logging.getLogger(__name__)
 #
 # Example of API call
 # curl http://localhost:8000/v1/models
-@router.get("/models")
+@router.get("/models", dependencies=[Depends(verify_auth)])
 async def list_models():
     models_list = []
     
@@ -111,25 +113,25 @@ async def list_models():
         "data": sorted(models_list, key=lambda x: x["created"], reverse=True)
     }
 
-# Добавляем роутер
-@router.post("/models/download", status_code=status.HTTP_202_ACCEPTED)
-async def download_model(request: DownloadRequest):
+@router.delete("/models", dependencies=[Depends(verify_auth)], status_code=status.HTTP_202_ACCEPTED)
+async def delete_model(request: DeleteRequest):
     if request.provider == "ollama":
-        return await handle_ollama_download(request)
+        return await handle_ollama_delete(request)
     elif request.provider == "huggingface":
-        return await handle_huggingface_download(request)
+        return await handle_huggingface_delete(request)
     else:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid provider. Supported: 'ollama', 'huggingface'"
         )
 
-@router.delete("/models/delete", status_code=status.HTTP_202_ACCEPTED)
-async def delete_model(request: DeleteRequest):
+# Добавляем роутер
+@router.post("/models/download", dependencies=[Depends(verify_auth)], status_code=status.HTTP_202_ACCEPTED)
+async def download_model(request: DownloadRequest):
     if request.provider == "ollama":
-        return await handle_ollama_delete(request)
+        return await handle_ollama_download(request)
     elif request.provider == "huggingface":
-        return await handle_huggingface_delete(request)
+        return await handle_huggingface_download(request)
     else:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

@@ -9,6 +9,7 @@ class ServerConfig(BaseModel):
     host: str = "0.0.0.0"
     port: int = 8000
     storage_root: str = "/tmp"
+    api_key: str = None
 
 class OllamaConfig(BaseModel):
     host: str = "localhost"

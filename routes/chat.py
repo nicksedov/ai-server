@@ -1,6 +1,7 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, Security, HTTPException
 from schemas import ChatCompletionRequest
 from config import config
+from auth import verify_auth
 import requests
 import uuid
 import time
@@ -15,6 +16,7 @@ OLLAMA_CHAT_ENDPOINT = f"{OLLAMA_BASE_URL}/api/chat"
 # POST /v1/chat/completions
 # Headers:
 #   Content-Type: application/json
+#   Authorization: Bearer <your_api_key>
 # Body:
 #   {
 #     "model": "<ollama-model-name>",
@@ -41,7 +43,7 @@ OLLAMA_CHAT_ENDPOINT = f"{OLLAMA_BASE_URL}/api/chat"
 #
 # Note: Requires running Ollama server with specified model (e.g. `ollama pull llama2`)
 
-@router.post("/chat/completions")
+@router.post("/chat/completions", dependencies=[Depends(verify_auth)])
 async def chat_completion(request: ChatCompletionRequest):
     try:
         # Преобразование запроса в формат Ollama

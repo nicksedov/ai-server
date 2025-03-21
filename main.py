@@ -1,9 +1,63 @@
 from fastapi import FastAPI
+from fastapi.openapi.utils import get_openapi
 from routes import images, chat, models, health
 from config import config
 import uvicorn
 
 app = FastAPI()
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+
+    description = """
+    # Key Information:
+    - Used exclusively for owner's personal purposes
+    - Testing and deployment of Language Learning Models (LLMs)
+    - Not intended for public use
+    - Access strictly limited to authorized users
+
+    # Technical Details:
+    - Integrated with Ollama for model operations
+    - Huggingface-hosted models support
+    - OpenAI API format compatible
+    """
+
+    openapi_schema = get_openapi(
+        title="LLM Server API",
+        version="1.0.0",
+        summary="Private LLM model management server",
+        description=description,
+        contact={
+            "name": "Nikolay Sedov",
+            "url": "https://nicksedov.github.io/",
+        },
+        license_info={
+            "name": "PRIVATE USE ONLY"
+        },
+        routes=app.routes,
+    )
+
+    if "components" not in openapi_schema:
+        openapi_schema["components"] = {}
+    
+    openapi_schema["components"].update({
+        "securitySchemes": {
+            "Bearer": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+                "description": "Required format: Bearer <your-secret-key>"
+            }
+        }
+    })
+    
+    openapi_schema.setdefault("security", []).append({"Bearer": []})
+    
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+app.openapi = custom_openapi
 
 app.include_router(images.router)
 app.include_router(chat.router)
