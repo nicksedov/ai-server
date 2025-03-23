@@ -1,5 +1,4 @@
 from pydantic import BaseModel, Field
-from typing import Optional
 
 class ImageRequest(BaseModel):
     model: str = 'black-forest-labs/FLUX.1-dev'
@@ -11,7 +10,6 @@ class ImageRequest(BaseModel):
 class ChatMessage(BaseModel):
     role: str = "user"
     content: str = "Назови планеты Солнечной системы"
-    image_url: Optional[str] = None
 
 class ChatCompletionRequest(BaseModel):
     model: str

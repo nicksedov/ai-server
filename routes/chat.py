@@ -150,8 +150,7 @@ def create_chat_image_response(request: Request, prompt: str, image_path: str) -
         "choices": [{
             "message": {
                 "role": "assistant",
-                "content": f"Изображение сгенерировано: {filename}",
-                "image_url": f"{request.base_url}v1/images/{filename}"
+                "content": f"![image]({request.base_url}v1/images/{filename})"
             }
         }],
         "usage": create_usage_stats(prompt)
