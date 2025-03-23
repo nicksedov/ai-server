@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field
+from typing import Optional
 
 class ImageRequest(BaseModel):
     model: str = 'black-forest-labs/FLUX.1-dev'
@@ -8,26 +9,16 @@ class ImageRequest(BaseModel):
     guidance_scale: float = 5.0
 
 class ChatMessage(BaseModel):
-    role: str
-    content: str
+    role: str = "user"
+    content: str = "Назови планеты Солнечной системы"
+    image_url: Optional[str] = None
 
 class ChatCompletionRequest(BaseModel):
     model: str
-    messages: list[ChatMessage] = Field(
-        default_factory=lambda: [
-            ChatMessage(
-                role="system", 
-                content="Ты полезный ИИ-помощник. Внимательно следуй инструкциям пользователя."
-            ),
-            ChatMessage(
-                role="user",
-                content="Назови планеты Солнечной системы"
-            )
-        ]
-    )
+    messages: list[ChatMessage]
     temperature: float = 0.7
-    top_p: float = 1.0
-    max_tokens: int = None
+    top_p: float = 0.95
+    max_tokens: int = 8192
     stream: bool = False
 
 class DownloadRequest(BaseModel):

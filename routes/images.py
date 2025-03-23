@@ -1,5 +1,6 @@
 from typing import Annotated
 from fastapi import APIRouter, Request, Header, Depends  # Базовые компоненты FastAPI
+from fastapi.responses import FileResponse
 from schemas import ImageRequest  # Pydantic-схема для валидации запросов
 from utils import flush, translate_to_english  # Вспомогательные утилиты
 from config import config  # Конфигурационные параметры приложения
@@ -34,10 +35,21 @@ router = APIRouter(prefix="/v1")
 @router.post("/images/generations", dependencies=[Depends(verify_auth)])
 async def generate_image(
         request: Request, 
-        body: ImageRequest,  # Тело запроса, валидируемое схемой ImageRequest
-        content_language: Annotated[str | None, Header()] = 'auto',  # Язык промпта из заголовка
+        body: ImageRequest, 
+        content_language: Annotated[str | None, Header()] = 'auto'
     ):
-    # Извлечение параметров из тела запроса
+    return await generate_image_internal(body, content_language)
+
+@router.get("/images/{filename}")
+async def get_image(filename: str):
+    root_path = config.server.storage_root
+    image_dir = os.path.join(root_path, "AI", "output", "flux")
+    image_path = os.path.join(image_dir, filename)
+    if not os.path.isfile(image_path):
+        raise HTTPException(status_code=404, detail="Image not found")
+    return FileResponse(image_path)
+
+async def generate_image_internal(body: ImageRequest, content_language: str):    # Извлечение параметров из тела запроса
     ckpt_id = body.model       # Идентификатор модели
     steps = body.steps          # Количество шагов генерации
     prompt = body.prompt        # Текст промпта
