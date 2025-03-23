@@ -1,13 +1,5 @@
-import gc
-import torch
 from googletrans import Translator
 import asyncio
-
-def flush():
-    gc.collect()
-    torch.cuda.empty_cache()
-    torch.cuda.reset_max_memory_allocated()
-    torch.cuda.reset_peak_memory_stats()
 
 async def translate_to_english(prompt: str, language: str):
     if language != 'en':

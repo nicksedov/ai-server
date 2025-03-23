@@ -2,7 +2,7 @@ from typing import Annotated
 from fastapi import APIRouter, Request, Header, Depends  # Базовые компоненты FastAPI
 from fastapi.responses import FileResponse
 from schemas import ImageRequest  # Pydantic-схема для валидации запросов
-from utils import flush, translate_to_english  # Вспомогательные утилиты
+from utils import translate_to_english  # Вспомогательные утилиты
 from config import config  # Конфигурационные параметры приложения
 from auth import verify_auth # Аутентификация
 import torch  # Основная библиотека для работы с нейросетями
@@ -10,6 +10,7 @@ from diffusers import FluxPipeline, AutoencoderKL, FluxTransformer2DModel  # К�
 from diffusers.image_processor import VaeImageProcessor  # Обработчик изображений для VAE
 import datetime
 import os
+import gc
 
 # Инициализация роутера API с префиксом /v1
 router = APIRouter(prefix="/v1")
@@ -162,3 +163,9 @@ async def generate_image_internal(body: ImageRequest, content_language: str):   
     flush()
 
     return {"prompt": prompt, "filepath": filename}  # Возврат результата клиенту
+
+def flush():
+    gc.collect()
+    torch.cuda.empty_cache()
+    torch.cuda.reset_max_memory_allocated()
+    torch.cuda.reset_peak_memory_stats()
