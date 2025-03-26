@@ -54,19 +54,20 @@ async def handle_image_generation(
         request: Request,
         chat_request: ChatCompletionRequest
     ) -> dict:
-    original_prompt = extract_image_prompt(chat_request)
+    original_prompt = get_last_user_message(chat_request.messages)
+    if not original_prompt:
+        raise HTTPException(400, "No user message found")
+
     generated_prompt = await generate_image_prompt(chat_request, original_prompt)
-    
-    content_language = detect_content_language(generated_prompt)
     
     image_response = await generate_and_save_image(
         prompt=generated_prompt,
-        language=content_language
+        language='auto'
     )
     
     return create_chat_image_response(
         request=request,
-        prompt=generated_prompt,
+        prompt=image_response["prompt"],
         image_path=image_response["filepath"]
     )
 
@@ -74,13 +75,18 @@ async def generate_image_prompt(
         chat_request: ChatCompletionRequest,
         original_prompt: str
     ) -> str:
+    base_system_message = ""
+    for msg in chat_request.messages:
+        if (msg.role == "system"):
+            base_system_message = base_system_message + msg.content + "\n"
+        
     system_message = ChatMessage(
         role="system",
-        content="Ты помогаешь создавать детальные промпты для генерации изображений."
+        content=base_system_message + "Сейчас ты помогаешь создавать промпты для генерации изображений."
     )
     user_message = ChatMessage(
         role="user",
-        content=f"Создай промпт для генерации изображения, основываясь на запросе: {original_prompt}"
+        content=f"Составь промпт для генерации изображения размером до 150 слов, основываясь на данном запросе: '{original_prompt}'"
     )
     
     payload = {
@@ -99,30 +105,13 @@ async def generate_image_prompt(
         logger.error(f"Prompt generation error: {e}")
         return original_prompt
 
-def extract_image_prompt(chat_request: ChatCompletionRequest) -> str:
-    last_user_message = get_last_user_message(chat_request.messages)
-    if not last_user_message:
-        raise HTTPException(400, "No user message found")
-    
-    keywords = ["нарисуй", "изобрази", "сгенерируй изображение", "нарисуйте", "покажи изображение"]
-    cleaned_prompt = last_user_message.content
-    for kw in keywords:
-        cleaned_prompt = cleaned_prompt.replace(kw, "").replace(kw.capitalize(), "")
-    
-    return cleaned_prompt.strip()
-
-def detect_content_language(prompt: str) -> str:
-    try:
-        return Translator().detect(prompt).lang or 'en'
-    except:
-        return 'en'
-
 async def generate_and_save_image(prompt: str, language: str) -> dict:
     image_request = ImageRequest(
         prompt=prompt,
         model='black-forest-labs/FLUX.1-dev',
         steps=50,
-        size='512x512'
+        size='512x512',
+        guidance_scale = 7.5
     )
     return await generate_image_internal(image_request, language)
 
@@ -136,10 +125,10 @@ def create_chat_image_response(request: Request, prompt: str, image_path: str) -
         "choices": [{
             "message": {
                 "role": "assistant",
-                "content": f"![image]({request.base_url}v1/images/{filename})"
+                "content": f"![image]({request.base_url}v1/images/{filename}) {prompt}"
             }
         }],
-        "usage": create_usage_stats(prompt)
+        "usage": create_image_response_approx_usage(prompt)
     }
 
 async def handle_text_completion(request_body: ChatCompletionRequest) -> dict:
@@ -206,11 +195,12 @@ def calculate_usage(ollama_response: dict) -> dict:
         )
     }
 
-def create_usage_stats(prompt: str) -> dict:
+def create_image_response_approx_usage(prompt: str) -> dict:
+    wordCount = len(prompt.split())
     return {
-        "prompt_tokens": len(prompt.split()),
+        "prompt_tokens": wordCount,
         "completion_tokens": 0,
-        "total_tokens": len(prompt.split())
+        "total_tokens": wordCount
     }
 
 def log_error(error: Exception):
