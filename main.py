@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
-from routes import images, chat, models, health
+from routes import images, chat, models, system
 from config import config
 import uvicorn
 
@@ -46,7 +46,7 @@ def custom_openapi():
             "Bearer": {
                 "type": "http",
                 "scheme": "bearer",
-                "bearerFormat": "JWT",
+                "bearerFormat": "UUID",
                 "description": "Required format: Bearer <your-secret-key>"
             }
         }
@@ -62,7 +62,7 @@ app.openapi = custom_openapi
 app.include_router(images.router)
 app.include_router(chat.router)
 app.include_router(models.router)
-app.include_router(health.router)
+app.include_router(system.router)
 
 if __name__ == "__main__":
     uvicorn.run(
