@@ -22,6 +22,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Копирование исходного кода
 COPY *.py .
 COPY *.yaml .
+COPY resources/*.joblib ./resources/
 COPY routes/*.py ./routes/
 
 # Переменные окружения по умолчанию

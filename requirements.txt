@@ -12,3 +12,8 @@ PyYAML>=6.0
 protobuf>=6.30.0
 sentencepiece>=0.2.0
 pynvml>=12.0.0
+scikit-learn>=1.6.0
+pymorphy3>=2.0.0
+nltk>=3.9.0
+joblib>=1.4.0
+

@@ -4,14 +4,26 @@ from typing import Optional
 from config import config
 from auth import verify_auth
 from .images import generate_image_internal
+from sklearn.linear_model import LogisticRegression
+from pymorphy3 import MorphAnalyzer
 import requests
 import uuid
 import time
 import logging
 import os
+import re
+import nltk
+from nltk.corpus import stopwords
+import joblib
 
 router = APIRouter(prefix="/v1")
 logger = logging.getLogger(__name__)
+
+nltk.download('stopwords')
+russian_stopwords = stopwords.words('russian')
+morph = MorphAnalyzer()
+model = joblib.load('resources/classifier.joblib')
+vectorizer = joblib.load('resources/vectorizer.joblib')
 
 OLLAMA_BASE_URL = f"http://{config.ollama.host}:{config.ollama.port}"
 OLLAMA_CHAT_ENDPOINT = f"{OLLAMA_BASE_URL}/api/chat"
@@ -36,13 +48,25 @@ async def chat_completion(
             detail=f"Internal server error: {str(e)}"
         )
 
+def preprocess_text(text):
+    text = text.lower()
+    text = re.sub(r'[^\w\s]', '', text)  # Удаление пунктуации
+    tokens = text.split()
+    
+    # Лемматизация и фильтрация стоп-слов
+    tokens = [morph.parse(token)[0].normal_form for token in tokens]
+    tokens = [token for token in tokens if token not in russian_stopwords]
+    
+    return ' '.join(tokens)
+
 def is_image_request(request: ChatCompletionRequest) -> bool:
     last_user_message = get_last_user_message(request.messages)
     if not last_user_message:
         return False
-    
-    keywords = ["нарисуй", "изобрази", "сгенерируй изображение", "нарисуйте", "покажи изображение"]
-    return any(keyword in last_user_message.content.lower() for keyword in keywords)
+    processed_text = preprocess_text(last_user_message.content)
+    features = vectorizer.transform([processed_text])
+    prediction = model.predict(features)[0]
+    return bool(prediction)        
 
 def get_last_user_message(messages: list[ChatMessage]) -> Optional[ChatMessage]:
     for msg in reversed(messages):
