@@ -57,7 +57,13 @@ def get_gpu_info() -> List[GPUInfo]:
             info = pynvml.nvmlDeviceGetMemoryInfo(handle)
             util = pynvml.nvmlDeviceGetUtilizationRates(handle)
             
-            # Исправление для имени устройства
+            # Получение информации о вентиляторах
+            try:
+                fan_speed_percent = pynvml.nvmlDeviceGetFanSpeed(handle)
+            except pynvml.NVMLError:
+                fan_speed_percent = None
+
+            # Информация об имени устройства
             name = pynvml.nvmlDeviceGetName(handle)
             if isinstance(name, bytes):
                 name = name.decode('utf-8')  # Декодируем только байтовые строки
@@ -76,7 +82,8 @@ def get_gpu_info() -> List[GPUInfo]:
                 memory_used=info.used // (1024**2),
                 memory_free=info.free // (1024**2),
                 utilization=util.gpu,
-                temperature=temp
+                temperature=temp,
+                fan_speed_percent=fan_speed_percent
             ))
             
     except Exception as e:

@@ -6,7 +6,7 @@ class ImageRequest(BaseModel):
     steps: int = 50
     prompt: str
     size: str = '1280x720'
-    guidance_scale: float = 5.0
+    guidance_scale: float = 5.5
 
 class ChatMessage(BaseModel):
     role: str = "user"
@@ -55,7 +55,6 @@ class GPUInfo(BaseModel):
     memory_free: int
     utilization: int
     temperature: int
-    fan_speed_rpm: Optional[int] = None
     fan_speed_percent: Optional[int] = None
 
 class SystemInfoResponse(BaseModel):

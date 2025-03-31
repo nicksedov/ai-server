@@ -181,10 +181,9 @@ async def handle_huggingface_download(request: DownloadRequest):
             lambda: snapshot_download(
                 repo_id=request.model_id,
                 revision=request.revision,
-                cache_dir=config.huggingface.cache_dir,
                 resume_download=True,
                 local_files_only=False,
-                token=config.huggingface.token,
+                #token=config.huggingface.token, #uncomment if necessary
             )
         )
 

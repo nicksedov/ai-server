@@ -15,7 +15,7 @@ class OllamaConfig(BaseModel):
     host: str = "localhost"
     port: int = 11434
     timeout: int = Field(300, ge=10, le=600)
-    default_model: str = "qwq:32b-q8_0"
+    default_model: str
 
 class AppConfig(BaseModel):
     server: ServerConfig
