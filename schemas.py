@@ -66,3 +66,7 @@ class SystemInfoResponse(BaseModel):
     gpus: List[GPUInfo] = []
     torch_version: str
     python_version: str
+
+class HealthResponse(BaseModel):
+    status: str
+    timestamp: str

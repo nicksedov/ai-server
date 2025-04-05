@@ -108,6 +108,10 @@ async def get_system_info():
         "python_version": platform.python_version()
     }
 
-@router.get("/health")
+@router.get("/health",
+           response_model=HealthResponse)
 async def healthcheck():
-    return {"status": "OK", "timestamp": datetime.datetime.now().isoformat()}
+    return {
+        "status": "OK", 
+        "timestamp": datetime.datetime.now().isoformat()
+    }
