@@ -82,8 +82,8 @@ def format_image_response(request: Request, result: dict) -> dict:
         }],
         "model": "black-forest-labs/FLUX.1-dev",
         "parameters": {
-            "steps": result.get("steps", 50),
-            "size": result.get("size", "512x512"),
-            "guidance_scale": result.get("guidance_scale", 7.5)
+            "steps": result.get("steps"),
+            "size": result.get("size"),
+            "guidance_scale": result.get("guidance_scale")
         }
     }

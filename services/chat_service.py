@@ -11,6 +11,7 @@ import re
 import logging
 import uuid
 import time
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -65,12 +66,12 @@ class ChatService:
             prompt=generated_prompt,
             language='auto',
             size="512x512",
-            steps=10,
+            steps=50,
             guidance_scale=6.5           
         )
         return self.create_chat_image_response(
-            prompt=image_response["data"]["url"],
-            image_path=image_response["data"]["revised_prompt"]
+            prompt=image_response["prompt"],
+            image_path=image_response["filepath"]
         )
 
     async def generate_image_prompt(self, chat_request: ChatCompletionRequest, original_prompt: str):
