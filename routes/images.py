@@ -69,7 +69,7 @@ async def get_image(filename: str):
 
 def construct_image_path(filename: str) -> str:
     root_path = config.server.storage_root
-    image_dir = os.path.join(root_path, "AI", "output", "flux")
+    image_dir = os.path.join(root_path, "output")
     return os.path.join(image_dir, filename)
 
 def format_image_response(request: Request, result: dict) -> dict:

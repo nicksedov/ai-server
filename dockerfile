@@ -33,7 +33,7 @@ ENV HF_HOME=${STORAGE_ROOT}/huggingface
 ENV HUGGINGFACE_HUB_CACHE=${STORAGE_ROOT}/huggingface
 
 # Создание директории для хранения данных
-RUN mkdir -p ${STORAGE_ROOT}/AI/output/flux && \
+RUN mkdir -p ${STORAGE_ROOT}/output && \
     chmod -R 777 ${STORAGE_ROOT}
 
 # Экспорт порта приложения

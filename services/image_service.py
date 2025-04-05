@@ -144,16 +144,14 @@ class ImageService:
         size: str,
         guidance_scale: float
     ):
-        ckpt_id = model       # Идентификатор модели
-        content_language = language
-        if content_language and content_language != 'en':
+        if language and language != 'en':
             # Автоматический перевод промпта на английский (модель работает с английским текстом)
-            prompt = await translate_to_english(prompt, content_language)
+            prompt = await translate_to_english(prompt, language)
 
         # Этап 1: Подготовка текстовых эмбеддингов --------------------------------
         # Инициализация пайплайна для работы с текстовым кодировщиком
         pipeline = FluxPipeline.from_pretrained(
-            ckpt_id,
+            model,
             transformer=None,     # Не загружаем трансформер для экономии памяти
             vae=None,             # Не загружаем VAE
             device_map="balanced", # Оптимальное распределение по GPU
@@ -181,7 +179,7 @@ class ImageService:
         # Этап 2: Генерация латентных представлений ------------------------------
         # Загрузка трансформера для обработки латентных представлений
         transformer = FluxTransformer2DModel.from_pretrained(
-            ckpt_id, 
+            model, 
             subfolder="transformer",  # Поддиректория в репозитории модели
             device_map="auto",        # Автоматическое распределение по устройствам
             torch_dtype=torch.bfloat16
@@ -189,7 +187,7 @@ class ImageService:
         
         # Инициализация пайплайна для работы с трансформером
         pipeline = FluxPipeline.from_pretrained(
-            ckpt_id,
+            model,
             text_encoder=None,    # Текстовый кодировщик уже не нужен
             vae=None,             # VAE пока не загружаем
             transformer=transformer,  # Используем загруженный трансформер
@@ -221,7 +219,7 @@ class ImageService:
         # Этап 3: Декодирование латентов в изображение ---------------------------
         # Загрузка Variational AutoEncoder (VAE) для преобразования латентов
         vae = AutoencoderKL.from_pretrained(
-            ckpt_id, 
+            model, 
             subfolder="vae", 
             torch_dtype=torch.bfloat16
         ).to("cuda")  # Явное перемещение на GPU
@@ -243,8 +241,9 @@ class ImageService:
             # Генерация уникального имени файла
             now = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
             root_path = config.server.storage_root  # Путь из конфигурации
-            filename = f"{root_path}/AI/output/flux/flux_{width}x{height}_{steps}st_{now}.png"
-            image[0].save(filename)  # Сохранение изображения на диск
+            filename = f"flux_{width}x{height}_{steps}st_{now}.png"
+            full_path = os.path.join(root_path, "output", filename)
+            image[0].save(full_path)  # Сохранение изображения на диск
 
         # Финализация: освобождение ресурсов
         vae.to('cpu')  # Перенос VAE на CPU перед удалением
