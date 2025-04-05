@@ -4,6 +4,7 @@ from fastapi.responses import FileResponse
 from schemas import ImageRequest  # Pydantic-схема для валидации запросов
 from utils import translate_to_english  # Вспомогательные утилиты
 from config import config  # Конфигурационные параметры приложения
+from models_cache import model_cache
 from auth import verify_auth # Аутентификация
 import torch  # Основная библиотека для работы с нейросетями
 from diffusers import FluxPipeline, AutoencoderKL, FluxTransformer2DModel  # Компоненты модели диффузии
@@ -39,6 +40,7 @@ async def generate_image(
         body: ImageRequest, 
         content_language: Annotated[str | None, Header()] = 'auto'
     ):
+    model_cache.validate_model(body.model)
     return await generate_image_internal(body, content_language)
 
 @router.get("/images/{filename}")

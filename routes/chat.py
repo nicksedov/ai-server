@@ -3,6 +3,7 @@ from schemas import ChatCompletionRequest, ImageRequest, ChatMessage
 from typing import Optional
 from config import config
 from auth import verify_auth
+from models_cache import model_cache
 from .images import generate_image_internal
 from sklearn.linear_model import LogisticRegression
 from pymorphy3 import MorphAnalyzer
@@ -34,6 +35,8 @@ async def chat_completion(
         request_body: ChatCompletionRequest
     ):
     try:
+        model_cache.validate_model(request_body.model)
+
         if is_image_request(request_body):
             return await handle_image_generation(fastapi_request, request_body)
         else:
@@ -110,7 +113,7 @@ async def generate_image_prompt(
     )
     user_message = ChatMessage(
         role="user",
-        content=f"Составь промпт для генерации изображения размером до 150 слов, основываясь на данном запросе: '{original_prompt}'"
+        content=f"Дай ответ в форме промпта размером до 150 слов для генерации изображения, основываясь на данном запросе: '{original_prompt}'"
     )
     
     payload = {

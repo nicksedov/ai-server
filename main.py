@@ -2,9 +2,26 @@ from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
 from routes import images, chat, models, system
 from config import config
+from models_cache import model_cache
 import uvicorn
+import logging
+from contextlib import asynccontextmanager
 
-app = FastAPI()
+logger = logging.getLogger(__name__)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup logic
+    logger.info("Initializing model cache...")
+    await model_cache.refresh()
+    logger.info("Application startup complete")
+    
+    yield
+    
+    # Shutdown logic (при необходимости)
+    logger.info("Application shutting down")
+
+app = FastAPI(lifespan=lifespan)
 
 def custom_openapi():
     if app.openapi_schema:
