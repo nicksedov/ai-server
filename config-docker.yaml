@@ -15,15 +15,30 @@ openapi:
   version: "1.0.0"
   summary: "Private LLM model management server"
   description: |
-    # Key Information:
-    - Used exclusively for owner's personal purposes
-    - Testing and deployment of Language Learning Models (LLMs)
-    - Not intended for public use
-    - Access strictly limited to authorized users
-    # Technical Details:
-    - Integrated with Ollama for model operations
-    - Huggingface-hosted models support
-    - OpenAI API format compatible
+    <table>
+      <tr>
+        <th align= "left">Key Information</th>
+        <th align= "left">Technical Details</th>
+      </tr>
+      <tr>
+      <td valign="top">
+        <ul>
+          <li>Used exclusively for owner's personal purposes</li>  
+          <li>Testing and deployment of LLMs</li>  
+          <li>Not intended for public use</li>  
+          <li>Access strictly limited</li>
+        </ul>
+      </td>
+      <td valign="top">
+        <ul>
+          <li>Integrated with Ollama</li>
+          <li>Huggingface models support</li>
+          <li>OpenAI API compatible</li>
+          <li>Private deployment only</li>
+        </ul>  
+      </td>
+      </tr>
+    </table>
   contact:
     name: "Nikolay Sedov"
     url: "https://nicksedov.github.io/"
