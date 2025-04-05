@@ -15,10 +15,12 @@ async def chat_completion(
         body: ChatCompletionRequest
     ):
     try:
-        # Проверяем наличие модели в кеше перед обработкой
-        model_cache.validate_model(body.model)  # <-- Добавляем проверку
-        
-        return await chat_service.process_chat_request(body)
+        model_cache.validate_model(body.model)
+        provider = model_cache.get_provider(body.model)
+        return await chat_service.process_chat_request(
+            body, 
+            provider=provider
+        )
     except HTTPException as he:
         # Пробрасываем HTTP исключения напрямую
         raise he

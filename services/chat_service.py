@@ -26,7 +26,7 @@ class ChatService:
         self.ollama = OllamaClient()
         self.image_service = ImageService()
 
-    async def process_chat_request(self, request_body: ChatCompletionRequest):
+    async def process_chat_request(self, request_body: ChatCompletionRequest, provider: str):
         if self.is_image_request(request_body):
             return await self.handle_image_generation(request_body)
         return await self.handle_text_completion(request_body)
@@ -67,7 +67,7 @@ class ChatService:
             language='auto',
             size="512x512",
             steps=50,
-            guidance_scale=6.5           
+            guidance_scale=4.5           
         )
         return self.create_chat_image_response(
             prompt=image_response["prompt"],
@@ -78,7 +78,7 @@ class ChatService:
         system_message = self.build_system_message(chat_request.messages)
         user_message = ChatMessage(
             role="user",
-            content=f"Дай ответ в форме промпта размером до 150 слов для генерации изображения, основываясь на данном запросе: '{original_prompt}'"
+            content=f"Создай промпт для генерации изображения размером до 150 слов, основываясь на данном запросе: '{original_prompt}'"
         )
         
         payload = {

@@ -76,3 +76,9 @@ class HealthResponse(BaseModel):
     status: str = "OK"
     timestamp: str
     components: ComponentsHealthResponse
+
+class ModelResponse(BaseModel):
+    id: str
+    created: int
+    owned_by: str  # provider
+    object: str = "model"
