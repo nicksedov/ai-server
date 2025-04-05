@@ -68,5 +68,5 @@ class SystemInfoResponse(BaseModel):
     python_version: str
 
 class HealthResponse(BaseModel):
-    status: str
+    status: str = "OK"
     timestamp: str

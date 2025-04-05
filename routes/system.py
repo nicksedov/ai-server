@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from typing import List
-from schemas import CPUInfo,MemoryInfo,GPUInfo,SystemInfoResponse
+from schemas import CPUInfo,MemoryInfo,GPUInfo,SystemInfoResponse,HealthResponse
 import psutil
 import pynvml
 import platform
