@@ -1,9 +1,26 @@
 import os
+import yaml
+import argparse
 from pathlib import Path
 from typing import Optional
-import yaml
 from pydantic import BaseModel, Field
-import argparse
+from typing import List, Dict
+
+
+class OpenAPIConfig(BaseModel):
+    title: str = "API Server"
+    version: str = "1.0.0"
+    summary: str = "API Server Documentation"
+    description: str = ""
+    contact: Optional[Dict[str, str]] = None
+    license_info: Optional[Dict[str, str]] = None
+    security_schemes: Dict = {
+        "Bearer": {
+            "type": "http",
+            "scheme": "bearer"
+        }
+    }
+    security: List[Dict] = [{"Bearer": []}]
 
 class ServerConfig(BaseModel):
     host: str = "0.0.0.0"
@@ -20,6 +37,7 @@ class OllamaConfig(BaseModel):
 class AppConfig(BaseModel):
     server: ServerConfig
     ollama: OllamaConfig
+    openapi: OpenAPIConfig
 
 def load_config(config_path: Optional[Path] = None) -> AppConfig:
     # Поиск конфига по умолчанию

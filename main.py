@@ -27,49 +27,22 @@ def custom_openapi():
     if app.openapi_schema:
         return app.openapi_schema
 
-    description = """
-    # Key Information:
-    - Used exclusively for owner's personal purposes
-    - Testing and deployment of Language Learning Models (LLMs)
-    - Not intended for public use
-    - Access strictly limited to authorized users
-
-    # Technical Details:
-    - Integrated with Ollama for model operations
-    - Huggingface-hosted models support
-    - OpenAI API format compatible
-    """
-
+    # Используем параметры из конфига
+    openapi_config = config.openapi
+    
     openapi_schema = get_openapi(
-        title="LLM Server API",
-        version="1.0.0",
-        summary="Private LLM model management server",
-        description=description,
-        contact={
-            "name": "Nikolay Sedov",
-            "url": "https://nicksedov.github.io/",
-        },
-        license_info={
-            "name": "PRIVATE USE ONLY"
-        },
+        title=openapi_config.title,
+        version=openapi_config.version,
+        summary=openapi_config.summary,
+        description=openapi_config.description,
+        contact=openapi_config.contact,
+        license_info=openapi_config.license_info,
         routes=app.routes,
     )
 
-    if "components" not in openapi_schema:
-        openapi_schema["components"] = {}
-    
-    openapi_schema["components"].update({
-        "securitySchemes": {
-            "Bearer": {
-                "type": "http",
-                "scheme": "bearer",
-                "bearerFormat": "UUID",
-                "description": "Required format: Bearer <your-secret-key>"
-            }
-        }
-    })
-    
-    openapi_schema.setdefault("security", []).append({"Bearer": []})
+    # Добавляем security схемы из конфига
+    openapi_schema["components"]["securitySchemes"] = openapi_config.security_schemes
+    openapi_schema["security"] = openapi_config.security
     
     app.openapi_schema = openapi_schema
     return app.openapi_schema

@@ -6,5 +6,25 @@ server:
 ollama:
   host: "localhost"
   port: 11434
-  timeout: 300  # seconds
-  default_model: "qwq:32b-q8_0"
+  timeout: 300
+  default_model: "llama2"
+
+openapi:
+  title: "LLM Server API"
+  version: "1.0.0"
+  summary: "Private LLM model management server"
+  description: |
+    The server started with the default configuration. For productive operation, start the server with correctly configured host settings
+  contact:
+    name: "Nikolay Sedov"
+    url: "https://nicksedov.github.io/"
+  license_info:
+    name: "PRIVATE USE ONLY"
+  security_schemes:
+    Bearer:
+      type: "http"
+      scheme: "bearer"
+      bearerFormat: "UUID"
+      description: "Required format: Bearer <your-secret-key>"
+  security:
+    - Bearer: []
