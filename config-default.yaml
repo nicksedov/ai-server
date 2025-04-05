@@ -1,7 +1,7 @@
 server:
   host: "0.0.0.0"
   port: 8000
-  storage_root: "/tmp"
+  output_path: "/tmp"
 
 ollama:
   host: "localhost"

@@ -1,7 +1,7 @@
 server:
   host: "0.0.0.0"
   port: 7999
-  storage_root: "/app/storage"
+  output_path: "/app/storage/output"
   api_key: cbebbe70-0ba4-494f-8c85-41da575228d9
 
 ollama:

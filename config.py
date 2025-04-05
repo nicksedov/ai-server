@@ -25,7 +25,7 @@ class OpenAPIConfig(BaseModel):
 class ServerConfig(BaseModel):
     host: str = "0.0.0.0"
     port: int = 8000
-    storage_root: str = "/tmp"
+    output_path: str = "/tmp"
     api_key: str = None
 
 class OllamaConfig(BaseModel):
@@ -59,7 +59,7 @@ def load_config(config_path: Optional[Path] = None) -> AppConfig:
     env_overrides = {
         "server.host": os.getenv("SERVER_HOST"),
         "server.port": os.getenv("SERVER_PORT"),
-        "server.storage_root": os.getenv("STORAGE_ROOT"),
+        "server.output_path": os.getenv("SERVER_OUTPUT_PATH"),
         "ollama.host": os.getenv("OLLAMA_HOST"),
         "ollama.port": os.getenv("OLLAMA_PORT"),
         "ollama.timeout": os.getenv("OLLAMA_TIMEOUT"),

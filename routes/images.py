@@ -59,18 +59,13 @@ async def generate_image(
 @router.get("/images/{filename}")
 async def get_image(filename: str):
     try:
-        image_path = construct_image_path(filename)
+        image_path = os.path.join(config.server.output_path, filename)
         if not os.path.isfile(image_path):
             raise HTTPException(status_code=404, detail="Image not found")
         return FileResponse(image_path)
     except Exception as e:
         logger.error(f"Image retrieval error: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
-
-def construct_image_path(filename: str) -> str:
-    root_path = config.server.storage_root
-    image_dir = os.path.join(root_path, "output")
-    return os.path.join(image_dir, filename)
 
 def format_image_response(request: Request, result: dict) -> dict:
     filename = os.path.basename(result["filepath"])
