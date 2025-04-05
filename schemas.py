@@ -67,6 +67,12 @@ class SystemInfoResponse(BaseModel):
     torch_version: str
     python_version: str
 
+class ComponentsHealthResponse(BaseModel):
+    api: bool = True
+    models_cache: Optional[bool]
+    gpu: Optional[Dict]
+
 class HealthResponse(BaseModel):
     status: str = "OK"
     timestamp: str
+    components: ComponentsHealthResponse

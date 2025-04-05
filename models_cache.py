@@ -1,10 +1,11 @@
 from typing import Set, Dict, List
 from fastapi import HTTPException
 import logging
-from services.models_service import get_all_models
+from services.model_service import ModelService
 import asyncio
 
 logger = logging.getLogger(__name__)
+model_service = ModelService()
 
 class ModelCache:
     def __init__(self):
@@ -14,7 +15,7 @@ class ModelCache:
     async def refresh(self):
         async with self._lock:
             try:
-                models = await asyncio.to_thread(get_all_models)
+                models = await model_service.get_all_models()
                 self._cache = {model["id"] for model in models}
                 logger.info(f"Model cache updated. Current models: {len(self._cache)}")
             except Exception as e:
