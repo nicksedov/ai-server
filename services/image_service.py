@@ -98,7 +98,6 @@ class ImageService:
         model: str,
         prompt_embeds: torch.Tensor,
         pooled_prompt_embeds: torch.Tensor,
-        text_ids: torch.Tensor,
         steps: int,
         width: int,
         height: int,
