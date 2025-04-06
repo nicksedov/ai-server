@@ -7,6 +7,8 @@ import datetime
 import os
 import gc
 
+FLUX_VAE_SCALE_FACTOR: int = 8
+
 class ImageService:
     def __init__(self):
         self.device_map = "balanced"
@@ -119,15 +121,16 @@ class ImageService:
             torch_dtype=self.torch_dtype
         )
 
-        latents = pipeline(
-            prompt_embeds=prompt_embeds,
-            pooled_prompt_embeds=pooled_prompt_embeds,
-            num_inference_steps=steps,
-            guidance_scale=guidance_scale,
-            height=height,
-            width=width,
-            output_type="latent",
-        ).images
+        with torch.no_grad():
+            latents = pipeline(
+                prompt_embeds=prompt_embeds,
+                pooled_prompt_embeds=pooled_prompt_embeds,
+                num_inference_steps=steps,
+                guidance_scale=guidance_scale,
+                height=height,
+                width=width,
+                output_type="latent",
+            ).images
 
         # Очистка ресурсов
         pipeline.transformer = None
@@ -151,10 +154,10 @@ class ImageService:
             torch_dtype=self.torch_dtype
         ).to("cuda")
 
-        image_processor = VaeImageProcessor(vae_scale_factor=8)
+        image_processor = VaeImageProcessor(vae_scale_factor=FLUX_VAE_SCALE_FACTOR)
 
         with torch.no_grad():
-            latents = FluxPipeline._unpack_latents(latents, height, width, 8)
+            latents = FluxPipeline._unpack_latents(latents, height, width, FLUX_VAE_SCALE_FACTOR)
             latents = (latents / vae.config.scaling_factor) + vae.config.shift_factor
             
             image = vae.decode(latents.to(vae.device, dtype=vae.dtype), return_dict=False)[0]
@@ -169,6 +172,7 @@ class ImageService:
         vae.to('cpu')
         del vae
         del latents
+        del image_processor
         del image
         self.flush()
 
@@ -186,7 +190,10 @@ class ImageService:
             return (1280, 768)
 
     def flush(self):
-        gc.collect()
         torch.cuda.empty_cache()
-        torch.cuda.reset_max_memory_allocated()
-        torch.cuda.reset_peak_memory_stats()
+        for i in range(torch.cuda.device_count()):
+            torch.cuda.reset_max_memory_allocated(i)
+            torch.cuda.reset_max_memory_cached(i)
+            torch.cuda.reset_peak_memory_stats(i)
+            torch.cuda.reset_accumulated_memory_stats(i)
+        gc.collect()

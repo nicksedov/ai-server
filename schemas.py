@@ -6,7 +6,7 @@ class ImageRequest(BaseModel):
     steps: int = 50
     prompt: str
     size: str = '1280x720'
-    guidance_scale: float = 5.5
+    guidance_scale: float = 4.5
 
 class ChatMessage(BaseModel):
     role: str = "user"

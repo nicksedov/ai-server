@@ -61,6 +61,7 @@ class ChatService:
             raise HTTPException(400, "No user message found")
 
         generated_prompt = await self.generate_image_prompt(chat_request, original_prompt)
+        time.sleep(1) # Take time for Ollama to unload its background process
         image_response = await self.image_service.generate_and_save_image(
             model="black-forest-labs/FLUX.1-dev",
             prompt=generated_prompt,
