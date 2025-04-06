@@ -93,3 +93,12 @@ class TorchInfoResponse(BaseModel):
     memory_allocated: Optional[int]
     memory_reserved: Optional[int]
     devices: List[Dict]
+
+# Добавляем новую схему ответа
+class OllamaInfoResponse(BaseModel):
+    status: str
+    version: Optional[str] = None
+    models: List[Dict] = []
+    gpu_support: bool = False
+    error: Optional[str] = None
+    details: Dict = {}

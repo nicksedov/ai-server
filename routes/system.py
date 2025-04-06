@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from schemas import SystemInfoResponse, HealthResponse, TorchInfoResponse
+from schemas import SystemInfoResponse, HealthResponse, TorchInfoResponse, OllamaInfoResponse
 from services.system_service import SystemService
 from auth import verify_auth
 import logging
@@ -37,6 +37,21 @@ async def get_torch_info():
         raise HTTPException(
             status_code=500,
             detail="Failed to retrieve PyTorch information"
+        )
+
+# Добавляем новый эндпоинт
+@router.get("/ollama/info", 
+          response_model=OllamaInfoResponse,
+          dependencies=[Depends(verify_auth)])
+async def get_ollama_info():
+    """Get Ollama service diagnostic information"""
+    try:
+        return system_service.get_ollama_info()
+    except Exception as e:
+        logger.error(f"Ollama info error: {str(e)}", exc_info=True)
+        return OllamaInfoResponse(
+            status="error",
+            error=str(e)
         )
 
 @router.get("/health",

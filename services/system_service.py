@@ -4,13 +4,17 @@ import pynvml
 import platform
 import torch
 import time
+import requests
 from typing import List, Dict
-from schemas import CPUInfo, MemoryInfo, GPUInfo, SystemInfoResponse, TorchInfoResponse
+from schemas import CPUInfo, MemoryInfo, GPUInfo, SystemInfoResponse, TorchInfoResponse, OllamaInfoResponse
+from config import config
 
 class SystemService:
     def __init__(self):
         self.nvml_initialized = False
         self._initialize_nvml()
+        self.ollama_base = f"http://{config.ollama.host}:{config.ollama.port}"
+        self.timeout = config.ollama.timeout
 
     def get_system_info(self) -> SystemInfoResponse:
         return SystemInfoResponse(
@@ -63,6 +67,53 @@ class SystemService:
             memory_reserved=torch.cuda.memory_reserved() if torch.cuda.is_available() else None,
             devices=devices
         )
+
+    def get_ollama_info(self) -> OllamaInfoResponse:
+        try:
+            # Проверяем доступность сервиса
+            ping_response = requests.get(f"{self.ollama_base}/api/tags", timeout=5)
+            if not ping_response.ok:
+                return OllamaInfoResponse(
+                    status="offline",
+                    error=f"Ollama API unavailable: {ping_response.text}"
+                )
+
+            # Получаем версию
+            version_response = requests.get(f"{self.ollama_base}/api/version", timeout=5)
+            version_data = version_response.json() if version_response.ok else {}
+
+            # Получаем список моделей
+            models_response = requests.get(f"{self.ollama_base}/api/tags", timeout=10)
+            models_data = models_response.json() if models_response.ok else {}
+
+            # Проверяем GPU support
+            gpu_support = any(
+                "gpu" in model.get("details", {}).get("parent_model", "").lower()
+                for model in models_data.get("models", [])
+            )
+
+            return OllamaInfoResponse(
+                status="online",
+                version=version_data.get("version"),
+                models=models_data.get("models", []),
+                gpu_support=gpu_support,
+                details={
+                    "host": self.ollama_base,
+                    "timeout": self.timeout,
+                    "default_model": config.ollama.default_model
+                }
+            )
+
+        except requests.exceptions.ConnectionError as e:
+            return OllamaInfoResponse(
+                status="offline",
+                error=f"Connection error: {str(e)}"
+            )
+        except Exception as e:
+            return OllamaInfoResponse(
+                status="error",
+                error=f"Unexpected error: {str(e)}"
+            )
 
     def check_cache_health(self) -> bool:
         try:
