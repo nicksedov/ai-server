@@ -2,13 +2,8 @@ from schemas import ChatCompletionRequest, ChatMessage
 from config import config
 from .ollama_client import OllamaClient
 from .image_service import ImageService
-from sklearn.linear_model import LogisticRegression
-from pymorphy3 import MorphAnalyzer
-import nltk
-from nltk.corpus import stopwords
+from .classifier_service import PromptClassifier
 from fastapi import HTTPException
-import joblib
-import re
 import logging
 import uuid
 import time
@@ -16,16 +11,11 @@ import os
 
 logger = logging.getLogger(__name__)
 
-nltk.download('stopwords')
-russian_stopwords = stopwords.words('russian')
-morph = MorphAnalyzer()
-model = joblib.load('resources/classifier.joblib')
-vectorizer = joblib.load('resources/vectorizer.joblib')
-
 class ChatService:
     def __init__(self):
         self.ollama = OllamaClient()
         self.image_service = ImageService()
+        self.classifier = PromptClassifier()
 
     async def process_chat_request(self, request_body: ChatCompletionRequest, provider: str):
         if (provider != 'ollama'):
@@ -38,10 +28,7 @@ class ChatService:
         last_user_message = self.get_last_user_message(request.messages)
         if not last_user_message:
             return False
-        processed_text = self.preprocess_text(last_user_message.content)
-        features = vectorizer.transform([processed_text])
-        prediction = model.predict(features)[0]
-        return bool(prediction)
+        return self.classifier.is_image_request(last_user_message.content)
 
     @staticmethod
     def preprocess_text(text: str) -> str:
