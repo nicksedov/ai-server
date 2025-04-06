@@ -6,6 +6,7 @@ from sklearn.linear_model import LogisticRegression
 from pymorphy3 import MorphAnalyzer
 import nltk
 from nltk.corpus import stopwords
+from fastapi import HTTPException
 import joblib
 import re
 import logging
@@ -27,6 +28,8 @@ class ChatService:
         self.image_service = ImageService()
 
     async def process_chat_request(self, request_body: ChatCompletionRequest, provider: str):
+        if (provider != 'ollama'):
+            raise HTTPException(400, f"Model type '{provider}' not supported")
         if self.is_image_request(request_body):
             return await self.handle_image_generation(request_body)
         return await self.handle_text_completion(request_body)

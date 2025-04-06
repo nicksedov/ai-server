@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends
-from schemas import SystemInfoResponse, HealthResponse
+from fastapi import APIRouter, Depends, HTTPException
+from schemas import SystemInfoResponse, HealthResponse, TorchInfoResponse
 from services.system_service import SystemService
 from auth import verify_auth
 import logging
@@ -22,6 +22,21 @@ async def get_system_info():
         raise HTTPException(
             status_code=500,
             detail="Failed to retrieve system information"
+        )
+
+# Добавляем новый эндпоинт
+@router.get("/torch/info", 
+           response_model=TorchInfoResponse,
+           dependencies=[Depends(verify_auth)])
+async def get_torch_info():
+    """Get detailed PyTorch diagnostic information"""
+    try:
+        return system_service.get_torch_info()
+    except Exception as e:
+        logger.error(f"Failed to get torch info: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to retrieve PyTorch information"
         )
 
 @router.get("/health",

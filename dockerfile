@@ -1,5 +1,5 @@
 # Базовый образ с CUDA 12.8 и Ubuntu 22.04
-FROM nvidia/cuda:12.8.1-runtime-ubuntu22.04
+FROM nvidia/cuda:12.4.1-runtime-ubuntu22.04
 
 # Установка системных зависимостей
 RUN apt-get update && apt-get install -y \

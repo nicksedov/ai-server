@@ -5,7 +5,7 @@ import platform
 import torch
 import time
 from typing import List, Dict
-from schemas import CPUInfo, MemoryInfo, GPUInfo, SystemInfoResponse
+from schemas import CPUInfo, MemoryInfo, GPUInfo, SystemInfoResponse, TorchInfoResponse
 
 class SystemService:
     def __init__(self):
@@ -22,6 +22,46 @@ class SystemService:
             gpus=self._get_gpu_info(),
             torch_version=torch.__version__,
             python_version=platform.python_version()
+        )
+
+    # Добавляем новый метод в класс SystemService
+    def get_torch_info(self) -> TorchInfoResponse:
+        devices = []
+        device_props = {}
+        
+        if torch.cuda.is_available():
+            try:
+                current_device = torch.cuda.current_device()
+                device_props = torch.cuda.get_device_properties(current_device)
+                
+                # Собираем информацию по всем устройствам
+                for i in range(torch.cuda.device_count()):
+                    prop = torch.cuda.get_device_properties(i)
+                    devices.append({
+                        "id": i,
+                        "name": prop.name,
+                        "total_memory": prop.total_memory,
+                        "multi_processor_count": prop.multi_processor_count,
+                        "major": prop.major,
+                        "minor": prop.minor
+                    })
+            except Exception as e:
+                logger.error(f"Error getting CUDA props: {str(e)}")
+
+        return TorchInfoResponse(
+            torch_version=torch.__version__,
+            cuda_available=torch.cuda.is_available(),
+            cuda_version=torch.version.cuda if torch.cuda.is_available() else None,
+            cudnn_version=torch.backends.cudnn.version() if torch.cuda.is_available() else None,
+            current_device=f"cuda:{torch.cuda.current_device()}" if torch.cuda.is_available() else "cpu",
+            device_properties={
+                "name": getattr(device_props, "name", None),
+                "total_memory": getattr(device_props, "total_memory", None),
+                "multi_processor_count": getattr(device_props, "multi_processor_count", None)
+            } if device_props else None,
+            memory_allocated=torch.cuda.memory_allocated() if torch.cuda.is_available() else None,
+            memory_reserved=torch.cuda.memory_reserved() if torch.cuda.is_available() else None,
+            devices=devices
         )
 
     def check_cache_health(self) -> bool:
