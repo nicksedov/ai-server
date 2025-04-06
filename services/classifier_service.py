@@ -7,7 +7,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-nltk.download('stopwords')
+nltk.download('stopwords', raise_on_error=True)
 
 class PromptClassifier:
     def __init__(self):
