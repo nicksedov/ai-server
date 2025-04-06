@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import List, Dict
 import shutil
 import requests
-import asyncio
 import logging
 import time
 
