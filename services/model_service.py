@@ -35,10 +35,10 @@ class ModelService:
             f"{self.ollama_base}/api/pull",
             json={"name": model_id},
             timeout=self.timeout,
-            stream=True
+            stream=False
         )
         response.raise_for_status()
-        return {"status": "success", "message": f"Model {model_id} downloaded"}
+        return {"status": "success", "message": f"Model {model_id} downloaded", "model_id": model_id, "provider": "ollama"}
 
     async def _download_huggingface_model(self, model_id: str, revision: str):
         snapshot_download(
@@ -47,7 +47,7 @@ class ModelService:
             resume_download=True,
             local_files_only=False
         )
-        return {"status": "success", "message": f"Model {model_id} downloaded"}
+        return {"status": "success", "message": f"Model {model_id} downloaded", "model_id": model_id, "provider": "huggingface"}
 
     async def _delete_ollama_model(self, model_id: str):
         response = requests.delete(
@@ -56,7 +56,7 @@ class ModelService:
             timeout=self.timeout
         )
         response.raise_for_status()
-        return {"status": "success", "message": f"Model {model_id} deleted"}
+        return {"status": "success", "message": f"Model {model_id} deleted", "model_id": model_id, "provider": "ollama"}
 
     async def _delete_huggingface_model(self, model_id: str, purge: bool):
         cache_info = scan_cache_dir()
@@ -73,7 +73,7 @@ class ModelService:
                     deleted = True
                 except Exception as e:
                     continue
-        return {"status": "success" if deleted else "failed"}
+        return {"status": "success" if deleted else "failed", "model_id": model_id, "provider": "huggingface"}
     
     def _get_ollama_models(self) -> List[Dict]:
         models = []

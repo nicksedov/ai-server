@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends, status
-from schemas import DownloadRequest, DeleteRequest
+from schemas.models import DownloadRequest, DownloadResponse, DeleteRequest, DeleteResponse, ModelResponse, ModelsListResponse
 from services.model_service import ModelService
 from config import config
 from models_cache import model_cache
@@ -13,6 +13,7 @@ model_service = ModelService()
 
 @router.get("/models", 
            dependencies=[Depends(verify_auth)],
+           response_model=ModelsListResponse,
            summary="Получение списка доступных моделей",
            description="Возвращает список всех доступных моделей из всех провайдеров (Ollama и Hugging Face)")
 async def list_models():
@@ -29,6 +30,7 @@ async def list_models():
 
 @router.post("/models/download", 
             dependencies=[Depends(verify_auth)],
+            response_model=DownloadResponse,
             status_code=status.HTTP_202_ACCEPTED,
             summary="Загрузка модели из указанного провайдера",
             description="""Инициирует процесс загрузки модели. Поддерживаемые провайдеры:
@@ -58,6 +60,7 @@ async def download_model(request: DownloadRequest):
 
 @router.delete("/models", 
              dependencies=[Depends(verify_auth)],
+             response_model=DeleteResponse,
              status_code=status.HTTP_202_ACCEPTED,
              summary="Удаление модели из системы",
              description="""Удаляет указанную модель из кеша. Для моделей Hugging Face:
@@ -85,35 +88,34 @@ async def delete_model(request: DeleteRequest):
             detail=f"Model deletion failed: {str(e)}"
         )
 
-def format_models_response(models: list) -> dict:
-    return {
-        "object": "list",
-        "data": sorted(
-            [{
-                "id": m["id"],
-                "object": "model",
-                "created": m["created"],
-                "owned_by": m["owned_by"]
-            } for m in models],
-            key=lambda x: x["created"],
+def format_models_response(models: list) -> ModelsListResponse:
+    return ModelsListResponse(
+        data=sorted(
+            [
+                ModelResponse(
+                    id=m["id"],
+                    created=m["created"],
+                    owned_by=m["owned_by"]
+                ) for m in models
+            ],
+            key=lambda x: x.created,
             reverse=True
         )
-    }
+    )
 
-def format_download_response(result: dict) -> dict:
-    return {
-        "status": result.get("status", "success"),
-        "message": result.get("message", ""),
-        "provider": result.get("provider", "unknown"),
-        "model_id": result.get("model_id", ""),
-        "details": result.get("details", {})
-    }
+def format_download_response(result: dict) -> DownloadResponse:
+    return DownloadResponse(
+        status=result.get("status", "success"),
+        message=result.get("message", ""),
+        provider=result.get("provider", "unknown"),
+        model_id=result.get("model_id", ""),
+    )
 
-def format_delete_response(result: dict) -> dict:
-    return {
-        "status": result.get("status", "success"),
-        "message": result.get("message", ""),
-        "provider": result.get("provider", "unknown"),
-        "model_id": result.get("model_id", ""),
-        "purged": result.get("purged", False)
-    }
+def format_delete_response(result: dict) -> DeleteResponse:
+    return DeleteResponse(
+        status=result.get("status", "success"),
+        message=result.get("message", ""),
+        provider=result.get("provider", "unknown"),
+        model_id=result.get("model_id", ""),
+        purged=result.get("purge", False),
+    )

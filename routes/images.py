@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request, Header, Depends, HTTPException
 from fastapi.responses import FileResponse
-from schemas import ImageRequest
+from schemas.images import ImageRequest
 from services.image_service import ImageService
 from config import config
 from models_cache import model_cache

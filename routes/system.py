@@ -1,5 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
-from schemas import SystemInfoResponse, HealthResponse, TorchInfoResponse, OllamaInfoResponse
+from schemas.system.info import SystemInfoResponse, CPUInfo, MemoryInfo, GPUInfo
+from schemas.system.health import HealthResponse, ComponentsHealthResponse
+from schemas.system.torch import TorchInfoResponse
+from schemas.system.ollama import OllamaInfoResponse
 from services.system_service import SystemService
 from auth import verify_auth
 import logging

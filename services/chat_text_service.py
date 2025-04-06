@@ -1,4 +1,4 @@
-from schemas import ChatCompletionRequest
+from schemas.chat import ChatCompletionRequest
 from config import config
 from .ollama_client import OllamaClient
 from fastapi import HTTPException

@@ -1,4 +1,4 @@
-from schemas import ChatCompletionRequest, ChatMessage
+from schemas.chat import ChatCompletionRequest, ChatMessage
 from config import config
 from .ollama_client import OllamaClient
 from .image_service import ImageService

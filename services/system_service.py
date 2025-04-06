@@ -1,4 +1,3 @@
-# services/system_service.py
 import psutil
 import pynvml
 import platform
@@ -6,7 +5,9 @@ import torch
 import time
 import requests
 from typing import List, Dict
-from schemas import CPUInfo, MemoryInfo, GPUInfo, SystemInfoResponse, TorchInfoResponse, OllamaInfoResponse
+from schemas.system.info import SystemInfoResponse, CPUInfo, MemoryInfo, GPUInfo
+from schemas.system.torch import TorchInfoResponse
+from schemas.system.ollama import OllamaInfoResponse
 from config import config
 
 class SystemService:

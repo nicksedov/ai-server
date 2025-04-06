@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Request, Depends, Security, HTTPException
-from schemas import ChatCompletionRequest
+from schemas.chat import ChatCompletionRequest, ChatMessage
 from services.classifier_service import PromptClassifier
 from services.chat_text_service import ChatTextService
 from services.chat_image_service import ChatImageService
