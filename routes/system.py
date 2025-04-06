@@ -11,7 +11,9 @@ system_service = SystemService()
 
 @router.get("/system/info", 
            response_model=SystemInfoResponse,
-           dependencies=[Depends(verify_auth)])
+           dependencies=[Depends(verify_auth)],
+           summary="Системная информация",
+           description="Возвращает подробную информацию о состоянии системы, включая CPU, память и GPU")
 async def get_system_info():
     """Get detailed system health information"""
     try:
@@ -24,10 +26,11 @@ async def get_system_info():
             detail="Failed to retrieve system information"
         )
 
-# Добавляем новый эндпоинт
 @router.get("/torch/info", 
            response_model=TorchInfoResponse,
-           dependencies=[Depends(verify_auth)])
+           dependencies=[Depends(verify_auth)],
+           summary="Диагностика PyTorch",
+           description="Возвращает информацию о конфигурации PyTorch и CUDA")
 async def get_torch_info():
     """Get detailed PyTorch diagnostic information"""
     try:
@@ -39,10 +42,11 @@ async def get_torch_info():
             detail="Failed to retrieve PyTorch information"
         )
 
-# Добавляем новый эндпоинт
 @router.get("/ollama/info", 
           response_model=OllamaInfoResponse,
-          dependencies=[Depends(verify_auth)])
+          dependencies=[Depends(verify_auth)],
+          summary="Диагностика Ollama",
+          description="Проверяет статус интеграции с Ollama и возвращает информацию о доступных моделях")
 async def get_ollama_info():
     """Get Ollama service diagnostic information"""
     try:
@@ -55,7 +59,9 @@ async def get_ollama_info():
         )
 
 @router.get("/health",
-           response_model=HealthResponse)
+           response_model=HealthResponse,
+           summary="Проверка работоспособности",
+           description="Базовый эндпоинт для проверки доступности сервиса")
 async def healthcheck():
     """Basic health check endpoint"""
     try:

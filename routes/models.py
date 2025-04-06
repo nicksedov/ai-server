@@ -11,7 +11,10 @@ router = APIRouter(prefix="/v1")
 logger = logging.getLogger(__name__)
 model_service = ModelService()
 
-@router.get("/models", dependencies=[Depends(verify_auth)])
+@router.get("/models", 
+           dependencies=[Depends(verify_auth)],
+           summary="Получение списка доступных моделей",
+           description="Возвращает список всех доступных моделей из всех провайдеров (Ollama и Hugging Face)")
 async def list_models():
     """Get list of available models from all providers"""
     try:
@@ -26,7 +29,11 @@ async def list_models():
 
 @router.post("/models/download", 
             dependencies=[Depends(verify_auth)],
-            status_code=status.HTTP_202_ACCEPTED)
+            status_code=status.HTTP_202_ACCEPTED,
+            summary="Загрузка модели из указанного провайдера",
+            description="""Инициирует процесс загрузки модели. Поддерживаемые провайдеры:
+- ollama: модели из репозитория Ollama
+- huggingface: модели с Hugging Face Hub""")
 async def download_model(request: DownloadRequest):
     """Download model from specified provider"""
     try:
@@ -51,7 +58,11 @@ async def download_model(request: DownloadRequest):
 
 @router.delete("/models", 
              dependencies=[Depends(verify_auth)],
-             status_code=status.HTTP_202_ACCEPTED)
+             status_code=status.HTTP_202_ACCEPTED,
+             summary="Удаление модели из системы",
+             description="""Удаляет указанную модель из кеша. Для моделей Hugging Face:
+- purge=True: полное удаление модели
+- purge=False: пометка для отложенной очистки при следующей сборке мусора""")
 async def delete_model(request: DeleteRequest):
     """Delete model from specified provider"""
     try:

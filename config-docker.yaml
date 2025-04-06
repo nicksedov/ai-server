@@ -7,34 +7,32 @@ server:
 ollama:
   host: "host.docker.internal"
   port: 11434
-  timeout: 300  # seconds
+  timeout: 300  # секунды
   default_model: "qwq:32b-q8_0"
 
 openapi:
-  title: "LLM Server API"
+  title: "LLM Сервер API"
   version: "1.0.0"
-  summary: "Private LLM model management server"
+  summary: "Приватный сервер управления LLM моделями"
   description: |
     <table>
       <tr>
-        <th align= "left">Key Information</th>
-        <th align= "left">Technical Details</th>
+        <th align= "left">Ключевая информация</th>
+        <th align= "left">Технические детали</th>
       </tr>
       <tr>
       <td valign="top">
         <ul>
-          <li>Used exclusively for owner's personal purposes</li>  
-          <li>Testing and deployment of LLMs</li>  
-          <li>Not intended for public use</li>  
-          <li>Access strictly limited</li>
+          <li>Используется исключительно для личных целей владельца</li>  
+          <li>Не предназначен для публичного использования</li>  
+          <li>Доступ только для аутентифицированных пользователей</li>
         </ul>
       </td>
       <td valign="top">
         <ul>
-          <li>Integrated with Ollama</li>
-          <li>Huggingface models support</li>
-          <li>OpenAI API compatible</li>
-          <li>Private deployment only</li>
+          <li>Поддержка запуска моделей, управляемых сервером <a href="https://ollama.com/">Ollama</a></li>
+          <li>Поддержка запуска локальных моделей <a href="https://huggingface.co/">Hugging Face</a></li>
+          <li>Совместимость с OpenAI API</li>
         </ul>  
       </td>
       </tr>
@@ -43,12 +41,12 @@ openapi:
     name: "Nikolay Sedov"
     url: "https://nicksedov.github.io/"
   license_info:
-    name: "PRIVATE USE ONLY"
+    name: "ТОЛЬКО ДЛЯ ЛИЧНОГО ИСПОЛЬЗОВАНИЯ"
   security_schemes:
     Bearer:
       type: "http"
       scheme: "bearer"
       bearerFormat: "UUID"
-      description: "Required format: Bearer <your-secret-key>"
+      description: "Необходимый формат: Bearer <ваш-секретный-ключ>"
   security:
     - Bearer: []

@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
+from fastapi.responses import FileResponse
 from routes import images, chat, models, system
 from config import config
 from models_cache import model_cache
@@ -53,6 +54,10 @@ app.include_router(images.router)
 app.include_router(chat.router)
 app.include_router(models.router)
 app.include_router(system.router)
+
+@app.get('/favicon.ico', include_in_schema=False)
+async def favicon():
+    return FileResponse('resources/favicon.ico')
 
 if __name__ == "__main__":
     uvicorn.run(

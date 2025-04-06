@@ -13,7 +13,13 @@ classifier = PromptClassifier()
 chat_service = ChatTextService()
 image_chat_service = ChatImageService()
 
-@router.post("/chat/completions", dependencies=[Depends(verify_auth)])
+@router.post("/chat/completions", 
+            dependencies=[Depends(verify_auth)],
+            summary="Генерация текстового ответа или изображения",
+            description="""Основной эндпоинт для взаимодействия с языковыми моделями. Поддерживает:
+- Текстовые ответы через модели Ollama
+- Автоматическое преобразование текстовых запросов в изображения
+- Поддержка стриминга через параметр stream""")
 async def chat_completion(
         request: Request,
         body: ChatCompletionRequest

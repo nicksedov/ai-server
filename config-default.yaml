@@ -10,21 +10,21 @@ ollama:
   default_model: "llama2"
 
 openapi:
-  title: "LLM Server API"
+  title: "API сервера LLM"
   version: "1.0.0"
-  summary: "Private LLM model management server"
+  summary: "Приватный сервер управления моделями LLM"
   description: |
-    The server started with the default configuration. For productive operation, start the server with correctly configured host settings
+    Сервер запущен с конфигурацией по умолчанию. Для промышленной эксплуатации запустите сервер с корректно настроенными параметрами хоста
   contact:
     name: "Nikolay Sedov"
     url: "https://nicksedov.github.io/"
   license_info:
-    name: "PRIVATE USE ONLY"
+    name: "ТОЛЬКО ДЛЯ ЛИЧНОГО ИСПОЛЬЗОВАНИЯ"
   security_schemes:
     Bearer:
       type: "http"
       scheme: "bearer"
       bearerFormat: "UUID"
-      description: "Required format: Bearer <your-secret-key>"
+      description: "Требуемый формат: Bearer <ваш-секретный-ключ>"
   security:
     - Bearer: []

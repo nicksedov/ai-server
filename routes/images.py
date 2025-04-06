@@ -12,25 +12,13 @@ router = APIRouter(prefix="/v1")
 logger = logging.getLogger(__name__)
 image_service = ImageService()
 
-# Эндпоинт для генерации изображений через POST-запрос в формате OpenAI API
-#
-# POST /v1/images/generations
-# Headers:
-#   Content-Type: application/json
-#   Content-Language: <prompt language, e.g. 'ru'. Default is 'en'>
-# Body:
-#   {
-#     "model": "<model>",
-#     "steps": <n>,
-#     "prompt": "<text>", 
-#     "size": "<width>x<height>", 
-#   }
-# Example of API call
-# curl -X POST -H 'Content-Type: application/json' -H 'Content-Language: ru'\
-#  -d '{"model":"black-forest-labs/FLUX.1-dev", "steps":50, "prompt":"Красная Шапочка встречеет волка", "size": "512x512"}' \
-#  http://localhost:8000/v1/images/generations
-#
-@router.post("/images/generations", dependencies=[Depends(verify_auth)])
+@router.post("/images/generations", 
+            dependencies=[Depends(verify_auth)],
+            summary="Генерация изображения по текстовому промпту",
+            description="""Генерация изображений через диффузионные модели. Особенности:
+- Автоматический перевод промптов на английский язык
+- Поддержка кастомных размеров через параметр size
+- Возвращает URL для скачивания изображения""")
 async def generate_image(
     request: Request,
     body: ImageRequest,
@@ -56,7 +44,9 @@ async def generate_image(
             detail=f"Image generation error: {str(e)}"
         )
 
-@router.get("/images/{filename}")
+@router.get("/images/{filename}",
+           summary="Получение сгенерированного изображения",
+           description="Возвращает ранее сгенерированное изображение по имени файла")
 async def get_image(filename: str):
     try:
         image_path = os.path.join(config.server.output_path, filename)
