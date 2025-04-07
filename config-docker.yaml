@@ -11,9 +11,9 @@ ollama:
   default_model: "qwq:32b-q8_0"
 
 openapi:
-  title: "LLM Сервер API"
+  title: "AI Gateway"
   version: "1.0.0"
-  summary: "Приватный сервер управления LLM моделями"
+  summary: "Сервер управления LLM моделями Ollama и Hugging Face"
   description: |
     <table>
       <tr>

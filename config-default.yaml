@@ -10,9 +10,9 @@ ollama:
   default_model: "llama2"
 
 openapi:
-  title: "API сервера LLM"
+  title: "AI Gateway"
   version: "1.0.0"
-  summary: "Приватный сервер управления моделями LLM"
+  summary: "Сервер управления LLM моделями Ollama и Hugging Face"
   description: |
     Сервер запущен с конфигурацией по умолчанию. Для промышленной эксплуатации запустите сервер с корректно настроенными параметрами хоста
   contact:

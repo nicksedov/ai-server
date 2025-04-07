@@ -34,14 +34,14 @@
 
         .hero {
             text-align: center;
-            padding: 4rem 0;
+            padding: 1rem 0;
             background: linear-gradient(45deg, #1E293B, #0F172A);
             border-bottom: 1px solid #1E293B;
         }
 
         .hero h1 {
             font-size: 3.5rem;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
             background: linear-gradient(45deg, var(--primary), var(--secondary));
             background-clip: text;
             -webkit-background-clip: text;
@@ -106,6 +106,39 @@
             transform-origin: 0 0;
         }
 
+        .doc-links {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            margin-top: 2rem;
+            animation: fadeIn 2s ease;
+        }
+
+        .doc-link {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            border-radius: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 1px solid var(--primary);
+        }
+
+        .doc-link:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(47, 128, 237, 0.3);
+        }
+
+        .doc-link span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -135,6 +168,15 @@
                 min-width: 1200px;
                 min-height: 800px;
             }
+
+            .doc-links {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .doc-link {
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -143,6 +185,14 @@
         <div class="container">
             <h1>AI Gateway</h1>
             <p>Unified API for LLM Integration with Ollama & Hugging Face</p>
+            <div class="doc-links">
+                <a href="/docs" target="_blank" rel="noopener noreferrer" class="doc-link">
+                    <span>📚 Swagger UI</span>
+                </a>
+                <a href="/redoc" target="_blank" rel="noopener noreferrer" class="doc-link">
+                    <span>📖 ReDoc</span>
+                </a>
+            </div>
         </div>
     </div>
 
@@ -160,7 +210,7 @@
             
             <div class="feature-card">
                 <h3>🔒 Enterprise Ready</h3>
-                <p>JWT authentication, rate limiting, and comprehensive monitoring. Built for production workloads.</p>
+                <p>Token authentication, rate limiting, and comprehensive monitoring. Built for production workloads.</p>
             </div>
         </div>
 
@@ -186,27 +236,42 @@
                         graph TD
                             A[Client] -->|REST API| B[API Server]
                             B --> C{Request Type}
-                            C -->|Text| D[Ollama Models]
+                            C -->|Text| D[Binarу Classification Model]
                             C -->|Image| E[Hugging Face Diffusion]
-                            B --> F[Model Cache]
-                            B --> G[System Monitor]
-                            D --> H[(Model Storage)]
-                            E --> H
-                            G --> I[CPU/RAM/GPU Metrics]
-                            G --> J[Torch/Ollama Diagnostics]
-                            F --> H
+                            D --> F{Output Type}
+                            F -->|Text-to-Text| G[Ollama Models]
+                            F -->|Text-to-Image| H[Ollama Models\nPrompt Optimization]
+                            H --> E
+                            B --> I[Model Cache]
+                            B --> J[System Monitor]
+                            G --> K[(Model Storage)]
+                            E --> K
+                            I --> K
                             
+                            %% Вертикальная компоновка метрик
+                            J --> L[Torch/Ollama Diagnostics]
+                            J --> M[CPU/RAM/GPU Metrics]
+                            
+                            %% Невидимые связи для выравнивания
+                            M ~~~ L
+                        
                             style A fill:#2F80ED,stroke:#2563EB,color:white,font-size:24px
                             style B fill:#1E293B,stroke:#334155,color:white,font-size:24px
-                            style D fill:#27AE60,stroke:#219653,color:white,font-size:24px
+                            style D fill:#F39C12,stroke:#E67E22,color:white,font-size:24px
                             style E fill:#EB5757,stroke:#D64545,color:white,font-size:24px
                             style C fill:#9B59B6,stroke:#8E44AD,color:white,font-size:24px
-                            style F fill:#F39C12,stroke:#E67E22,color:white,font-size:24px
-                            style G fill:#3498DB,stroke:#2980B9,color:white,font-size:24px
-                            style H fill:#1ABC9C,stroke:#16A085,color:white,font-size:24px
+                            style I fill:#F39C12,stroke:#E67E22,color:white,font-size:24px
+                            style J fill:#3498DB,stroke:#2980B9,color:white,font-size:24px
+                            style K fill:#1ABC9C,stroke:#16A085,color:white,font-size:24px
+                            style G fill:#27AE60,stroke:#219653,color:white,font-size:24px
+                            style H fill:#27AE60,stroke:#219653,color:white,font-size:24px
+                            style F fill:#8E44AD,stroke:#7D3C98,color:white,font-size:24px
                             
+                            %% Стили для метрик
+                            style L fill:#3498DB,stroke:#2980B9,color:white
+                            style M fill:#3498DB,stroke:#2980B9,color:white
+                        
                             classDef default font-size:20px,stroke-width:2px
-                    </pre>
                 </div>
             </div>
         </div>
