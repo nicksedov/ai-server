@@ -139,6 +139,18 @@
             font-weight: 500;
         }
 
+        footer {
+            background: #1E293B;
+            padding: 0 0;
+            margin-top: 1rem;
+            border-top: 1px solid #334155;
+        }
+        
+        footer a:hover {
+            color: var(--secondary);
+            text-decoration: underline;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -176,6 +188,11 @@
             
             .doc-link {
                 justify-content: center;
+            }
+
+            footer {
+                padding: 1.5rem 0;
+                font-size: 0.9rem;
             }
         }
     </style>
@@ -277,6 +294,19 @@
         </div>
     </div>
 
+    <footer>
+        <div class="container" style="text-align: center; color: #94A3B8;">
+            <p>
+                © 2025 Nikolay Sedov 
+                | <a href="https://nicksedov.github.io/" 
+                     target="_blank" 
+                     rel="noopener noreferrer" 
+                     style="color: var(--primary); text-decoration: none; transition: color 0.3s ease;">
+                    Персональная страница
+                </a>
+            </p>
+        </div>
+    </footer>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
