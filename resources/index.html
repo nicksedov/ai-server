@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Gateway - Unified LLM API</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <style>
+        :root {
+            --primary: #2F80ED;
+            --secondary: #27AE60;
+            --background: #0F172A;
+            --text: #F8FAFC;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+            background: linear-gradient(45deg, #1E293B, #0F172A);
+            border-bottom: 1px solid #1E293B;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: fadeInUp 1s ease;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #94A3B8;
+            max-width: 600px;
+            margin: 0 auto;
+            animation: fadeIn 1.5s ease;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 4rem 0;
+        }
+
+        .feature-card {
+            background: #1E293B;
+            padding: 2rem;
+            border-radius: 1rem;
+            transition: transform 0.3s ease;
+            border: 1px solid #334155;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-card h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .architecture {
+            background: #1E293B;
+            padding: 2rem;
+            border-radius: 1rem;
+            margin: 4rem 0;
+        }
+
+        .diagram-container {
+            overflow: auto;
+            margin-top: 2rem;
+            border: 1px solid #334155;
+            border-radius: 0.5rem;
+            background: #0F172A;
+        }
+
+        .diagram {
+            min-width: 900px;
+            min-height: 600px;
+            padding: 2rem;
+            transform-origin: 0 0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .diagram-container {
+                overflow-x: auto;
+            }
+            
+            .diagram {
+                min-width: 1200px;
+                min-height: 800px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <div class="container">
+            <h1>AI Gateway</h1>
+            <p>Unified API for LLM Integration with Ollama & Hugging Face</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="features">
+            <div class="feature-card">
+                <h3>🚀 Multi-Model Support</h3>
+                <p>Seamless integration with Ollama and Hugging Face models. Switch between providers with a single API call.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3>🖼️ Smart Generation</h3>
+                <p>Automatic detection of image generation requests. Intelligent prompt translation and optimization.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3>🔒 Enterprise Ready</h3>
+                <p>JWT authentication, rate limiting, and comprehensive monitoring. Built for production workloads.</p>
+            </div>
+        </div>
+
+        <div class="architecture">
+            <h2>System Architecture</h2>
+            <div class="diagram-container">
+                <div class="diagram" id="diagram">
+                    <pre class="mermaid">
+                        %%{init: {'theme': 'dark', 'themeVariables': {
+                            'fontSize': '20px',
+                            'primaryColor': '#1E293B',
+                            'lineColor': '#334155',
+                            'textColor': '#F8FAFC',
+                            'nodeBorder': '#2F80ED',
+                            'nodeTextColor': '#F8FAFC'
+                        }, 'flowchart': {
+                            'useMaxWidth': false,
+                            'htmlLabels': true,
+                            'nodeSpacing': 50,
+                            'rankSpacing': 80
+                        }}}%%
+                        
+                        graph TD
+                            A[Client] -->|REST API| B[API Server]
+                            B --> C{Request Type}
+                            C -->|Text| D[Ollama Models]
+                            C -->|Image| E[Hugging Face Diffusion]
+                            B --> F[Model Cache]
+                            B --> G[System Monitor]
+                            D --> H[(Model Storage)]
+                            E --> H
+                            G --> I[CPU/RAM/GPU Metrics]
+                            G --> J[Torch/Ollama Diagnostics]
+                            F --> H
+                            
+                            style A fill:#2F80ED,stroke:#2563EB,color:white,font-size:24px
+                            style B fill:#1E293B,stroke:#334155,color:white,font-size:24px
+                            style D fill:#27AE60,stroke:#219653,color:white,font-size:24px
+                            style E fill:#EB5757,stroke:#D64545,color:white,font-size:24px
+                            style C fill:#9B59B6,stroke:#8E44AD,color:white,font-size:24px
+                            style F fill:#F39C12,stroke:#E67E22,color:white,font-size:24px
+                            style G fill:#3498DB,stroke:#2980B9,color:white,font-size:24px
+                            style H fill:#1ABC9C,stroke:#16A085,color:white,font-size:24px
+                            
+                            classDef default font-size:20px,stroke-width:2px
+                    </pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            mermaid.initialize({
+                startOnLoad: true,
+                securityLevel: 'loose',
+                theme: 'dark',
+                fontFamily: 'Segoe UI, sans-serif',
+                flowchart: {
+                    useMaxWidth: false,
+                    htmlLabels: true,
+                    curve: 'basis',
+                    nodeSpacing: 50,
+                    rankSpacing: 80
+                },
+                themeVariables: {
+                    fontSize: '20px',
+                    primaryColor: '#1E293B',
+                    lineColor: '#334155',
+                    textColor: '#F8FAFC',
+                    nodeBorder: '#2F80ED',
+                    nodeTextColor: '#F8FAFC'
+                }
+            });
+            
+            setTimeout(() => {
+                try {
+                    mermaid.init(undefined, '.mermaid');
+                    
+                    // Дополнительное масштабирование после рендеринга
+                    const diagram = document.querySelector('.diagram');
+                    if (diagram) {
+                        const svg = diagram.querySelector('svg');
+                        if (svg) {
+                            svg.style.width = '100%';
+                            svg.style.height = 'auto';
+                            svg.style.minHeight = '600px';
+                        }
+                    }
+                } catch (e) {
+                    console.error("Mermaid error:", e);
+                    document.getElementById('diagram').innerHTML = 
+                        '<p style="color:white;font-size:24px;padding:2rem">Diagram loading failed. Please refresh the page.</p>';
+                }
+            }, 200);
+        });
+    </script>
+</body>
+</html>
