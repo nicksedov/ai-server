@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request, Depends, Security, HTTPException
 from schemas.chat import ChatCompletionRequest, ChatMessage
-from services.classifier_service import PromptClassifier
+from services.bert_prompt_classifier import BertPromptClassifier
 from services.chat_text_service import ChatTextService
 from services.chat_image_service import ChatImageService
 from auth import verify_auth
@@ -9,7 +9,7 @@ import logging
 
 router = APIRouter(prefix="/v1")
 logger = logging.getLogger(__name__)
-classifier = PromptClassifier()
+classifier = BertPromptClassifier()
 chat_service = ChatTextService()
 image_chat_service = ChatImageService()
 
