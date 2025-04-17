@@ -1,5 +1,5 @@
 # Многоступенчатая сборка
-FROM nvidia/cuda:12.4.1-base-ubuntu22.04
+FROM nvidia/cuda:12.8.1-base-ubuntu22.04
 
 # Установка системных зависимостей
 RUN apt-get update && \

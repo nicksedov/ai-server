@@ -28,6 +28,14 @@ class ServerConfig(BaseModel):
     output_path: str = "/tmp"
     api_key: str = None
 
+class LoggingConfig(BaseModel):
+    file_path: str = "ai-server.log"
+    level: str = "INFO"
+    format: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    max_bytes: int = 10 * 1024 * 1024  # 10 MB
+    backup_count: int = 5
+    enable_console: bool = True
+
 class OllamaConfig(BaseModel):
     host: str = "localhost"
     port: int = 11434
@@ -38,6 +46,7 @@ class AppConfig(BaseModel):
     server: ServerConfig
     ollama: OllamaConfig
     openapi: OpenAPIConfig
+    logging: LoggingConfig
 
 def load_config(config_path: Optional[Path] = None) -> AppConfig:
     # Поиск конфига по умолчанию
