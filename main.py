@@ -57,15 +57,19 @@ app.include_router(system.router)
 
 @app.get('/', include_in_schema=False)
 async def index():
-    return FileResponse('resources/index.html')
+    return FileResponse('resources/index.html', media_type='text/html')
 
 @app.get('/favicon.ico', include_in_schema=False)
 async def favicon():
     return FileResponse('resources/favicon.ico')
 
+@app.get('/styles.css', include_in_schema=False)
+async def css():
+    return FileResponse('resources/styles.css', media_type='text/css')
+
 @app.get('/avatar.jpg', include_in_schema=False)
 async def avatar():
-    return FileResponse('resources/AvatarPicture-256x256.jpg')
+    return FileResponse('resources/AvatarPicture-128x128.jpg', media_type='image/jpeg')
 
 if __name__ == "__main__":
     uvicorn.run(
