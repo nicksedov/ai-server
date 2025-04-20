@@ -1,6 +1,7 @@
 import torch
 from diffusers import FluxPipeline, AutoencoderKL, FluxTransformer2DModel
 from diffusers.image_processor import VaeImageProcessor
+from typing import Dict
 from utils import translate_to_english
 from config import config
 import datetime
@@ -34,8 +35,7 @@ class ImageService:
         width, height = self.parse_size(size)
         latents = await self.generate_latents(
             model=model,
-            prompt_embeds=embeddings["prompt_embeds"],
-            pooled_prompt_embeds=embeddings["pooled_prompt_embeds"],
+            embeddings=embeddings,
             steps=steps,
             width=width,
             height=height,
@@ -49,6 +49,7 @@ class ImageService:
             width=width,
             height=height
         )
+        embeddings = None
 
         return {
             "prompt": prompt,
@@ -98,8 +99,7 @@ class ImageService:
     async def generate_latents(
         self,
         model: str,
-        prompt_embeds: torch.Tensor,
-        pooled_prompt_embeds: torch.Tensor,
+        embeddings: Dict[str, torch.Tensor],
         steps: int,
         width: int,
         height: int,
@@ -123,8 +123,8 @@ class ImageService:
 
         with torch.no_grad():
             latents = pipeline(
-                prompt_embeds=prompt_embeds,
-                pooled_prompt_embeds=pooled_prompt_embeds,
+                prompt_embeds=embeddings["prompt_embeds"],
+                pooled_prompt_embeds=embeddings["pooled_prompt_embeds"],
                 num_inference_steps=steps,
                 guidance_scale=guidance_scale,
                 height=height,
