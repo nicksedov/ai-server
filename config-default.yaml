@@ -30,7 +30,7 @@ openapi:
     - Bearer: []
 
 logging:
-  file_path: "logs/app.log"
+  file_path: "/var/log/ai-server.log"
   level: "INFO"
   format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
   max_bytes: 10485760

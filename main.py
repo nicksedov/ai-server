@@ -63,6 +63,10 @@ async def index():
 async def favicon():
     return FileResponse('resources/favicon.ico')
 
+@app.get('/avatar.jpg', include_in_schema=False)
+async def avatar():
+    return FileResponse('resources/AvatarPicture-256x256.jpg')
+
 if __name__ == "__main__":
     uvicorn.run(
         app,
