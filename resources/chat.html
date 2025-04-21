@@ -67,6 +67,37 @@
             border-radius: 0.5rem;
             color: white;
             cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #sendButton:hover {
+           background: #2563EB;
+        }
+
+        #sendButton.sending {
+            background: #072f86 !important;
+        }
+
+        #sendButton.sending::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: button-spinner 0.6s linear infinite;
+        }
+
+        #sendButton.sending span {
+            opacity: 0.5;
+        }
+
+        @keyframes button-spinner {
+            to { transform: rotate(360deg); }
         }
 
         .settings {
@@ -82,77 +113,6 @@
             color: white;
             border-radius: 0.5rem;
         }
-
-        .loading-indicator {
-            display: none;
-            padding: 1rem;
-            margin: 1rem 0;
-            background: #334155;
-            border-radius: 0.5rem;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .dot-pulse {
-            position: relative;
-            left: -9999px;
-            width: 10px;
-            height: 10px;
-            border-radius: 5px;
-            background-color: #2F80ED;
-            color: #2F80ED;
-            box-shadow: 9999px 0 0 -5px;
-            animation: dot-pulse 1.5s infinite linear;
-            animation-delay: 0.25s;
-        }
-
-        .dot-pulse::before,
-        .dot-pulse::after {
-            content: "";
-            display: inline-block;
-            position: absolute;
-            top: 0;
-            width: 10px;
-            height: 10px;
-            border-radius: 5px;
-            background-color: #2F80ED;
-            color: #2F80ED;
-        }
-
-        .dot-pulse::before {
-            box-shadow: 9984px 0 0 -5px;
-            animation: dot-pulse-before 1.5s infinite linear;
-            animation-delay: 0s;
-        }
-
-        .dot-pulse::after {
-            box-shadow: 10014px 0 0 -5px;
-            animation: dot-pulse-after 1.5s infinite linear;
-            animation-delay: 0.5s;
-        }
-
-        @keyframes dot-pulse-before {
-            0% { box-shadow: 9984px 0 0 -5px; }
-            30% { box-shadow: 9984px 0 0 2px; }
-            60%, 100% { box-shadow: 9984px 0 0 -5px; }
-        }
-
-        @keyframes dot-pulse {
-            0% { box-shadow: 9999px 0 0 -5px; }
-            30% { box-shadow: 9999px 0 0 2px; }
-            60%, 100% { box-shadow: 9999px 0 0 -5px; }
-        }
-
-        @keyframes dot-pulse-after {
-            0% { box-shadow: 10014px 0 0 -5px; }
-            30% { box-shadow: 10014px 0 0 2px; }
-            60%, 100% { box-shadow: 10014px 0 0 -5px; }
-        }
-
-        .loading-text {
-            color: #94A3B8;
-            font-size: 0.9rem;
-        }
     </style>
 </head>
 <body>
@@ -164,6 +124,7 @@
                 </select>
                 <input type="password" 
                      class="api-key-input"
+                     size="32"
                      placeholder="API Key"
                      id="apiKey">
             </div>
@@ -174,14 +135,9 @@
                 <input type="text" 
                      id="messageInput" 
                      placeholder="Введите сообщение...">
-                <button id="sendButton">Отправить</button>
+                <button id="sendButton"><span>Отправить</span></button>
             </div>
         </div>
-    </div>
-
-    <div class="loading-indicator" id="loading">
-        <div class="dot-pulse"></div>
-        <span>Генерация ответа...</span>
     </div>
 
     <script>
@@ -218,11 +174,12 @@
                 ...chatHistory.slice(-MAX_HISTORY * 2),
                 { role: 'user', content: message }
             ];
-
-            const loadingIndicator = document.getElementById('loading');
+            const btn = document.getElementById('sendButton');
+            const originalText = btn.innerHTML;
             try {
+                btn.classList.add('sending');
+                btn.disabled = true;
                 // Показать индикатор загрузки
-                loadingIndicator.style.display = 'flex';
                 const response = await fetch('/v1/chat/completions', {
                     method: 'POST',
                     headers: {
@@ -256,10 +213,10 @@
             } catch (e) {
                 addMessageToUI('assistant', `Ошибка: ${e.message}`);
             } finally {
-                // Скрыть индикатор в любом случае
-                loadingIndicator.style.display = 'none';
+                btn.classList.remove('sending');
+                btn.disabled = false;
+                messageInput.value = '';
             }
-            messageInput.value = '';
         }
 
         function addMessageToUI(role, content) {
