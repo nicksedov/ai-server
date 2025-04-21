@@ -59,6 +59,10 @@ app.include_router(system.router)
 async def index():
     return FileResponse('resources/index.html', media_type='text/html')
 
+@app.get('/chat', include_in_schema=False)
+async def chat_interface():
+    return FileResponse('resources/chat.html', media_type='text/html')
+    
 @app.get('/favicon.ico', include_in_schema=False)
 async def favicon():
     return FileResponse('resources/favicon.ico')

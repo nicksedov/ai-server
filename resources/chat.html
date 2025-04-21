@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat Interface</title>
+    <link href="/styles.css" rel="stylesheet">
+    <style>
+        .chat-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            background: #1E293B;
+            border-radius: 1rem;
+            padding: 1rem;
+        }
+
+        .chat-history {
+            height: 60vh;
+            overflow-y: auto;
+            padding: 1rem;
+            background: #0F172A;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .message {
+            margin: 0.5rem 0;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            max-width: 80%;
+        }
+
+        .user-message {
+            background: #2F80ED;
+            margin-left: auto;
+        }
+
+        .bot-message {
+            background: #334155;
+            margin-right: auto;
+        }
+
+        .message img {
+            max-width: 100%;
+            border-radius: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        #messageInput {
+            flex-grow: 1;
+            padding: 0.8rem;
+            background: #0F172A;
+            border: 1px solid #334155;
+            color: white;
+            border-radius: 0.5rem;
+        }
+
+        #sendButton {
+            padding: 0.8rem 1.5rem;
+            background: #2F80ED;
+            border: none;
+            border-radius: 0.5rem;
+            color: white;
+            cursor: pointer;
+        }
+
+        .settings {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        select, .api-key-input {
+            padding: 0.5rem;
+            background: #0F172A;
+            border: 1px solid #334155;
+            color: white;
+            border-radius: 0.5rem;
+        }
+
+        .loading-indicator {
+            display: none;
+            padding: 1rem;
+            margin: 1rem 0;
+            background: #334155;
+            border-radius: 0.5rem;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .dot-pulse {
+            position: relative;
+            left: -9999px;
+            width: 10px;
+            height: 10px;
+            border-radius: 5px;
+            background-color: #2F80ED;
+            color: #2F80ED;
+            box-shadow: 9999px 0 0 -5px;
+            animation: dot-pulse 1.5s infinite linear;
+            animation-delay: 0.25s;
+        }
+
+        .dot-pulse::before,
+        .dot-pulse::after {
+            content: "";
+            display: inline-block;
+            position: absolute;
+            top: 0;
+            width: 10px;
+            height: 10px;
+            border-radius: 5px;
+            background-color: #2F80ED;
+            color: #2F80ED;
+        }
+
+        .dot-pulse::before {
+            box-shadow: 9984px 0 0 -5px;
+            animation: dot-pulse-before 1.5s infinite linear;
+            animation-delay: 0s;
+        }
+
+        .dot-pulse::after {
+            box-shadow: 10014px 0 0 -5px;
+            animation: dot-pulse-after 1.5s infinite linear;
+            animation-delay: 0.5s;
+        }
+
+        @keyframes dot-pulse-before {
+            0% { box-shadow: 9984px 0 0 -5px; }
+            30% { box-shadow: 9984px 0 0 2px; }
+            60%, 100% { box-shadow: 9984px 0 0 -5px; }
+        }
+
+        @keyframes dot-pulse {
+            0% { box-shadow: 9999px 0 0 -5px; }
+            30% { box-shadow: 9999px 0 0 2px; }
+            60%, 100% { box-shadow: 9999px 0 0 -5px; }
+        }
+
+        @keyframes dot-pulse-after {
+            0% { box-shadow: 10014px 0 0 -5px; }
+            30% { box-shadow: 10014px 0 0 2px; }
+            60%, 100% { box-shadow: 10014px 0 0 -5px; }
+        }
+
+        .loading-text {
+            color: #94A3B8;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="chat-container">
+            <div class="settings">
+                <select id="modelSelect">
+                    <option value="">Загрузка моделей...</option>
+                </select>
+                <input type="password" 
+                     class="api-key-input"
+                     placeholder="API Key"
+                     id="apiKey">
+            </div>
+            
+            <div class="chat-history" id="chatHistory"></div>
+            
+            <div class="input-group">
+                <input type="text" 
+                     id="messageInput" 
+                     placeholder="Введите сообщение...">
+                <button id="sendButton">Отправить</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading-indicator" id="loading">
+        <div class="dot-pulse"></div>
+        <span>Генерация ответа...</span>
+    </div>
+
+    <script>
+        let chatHistory = [];
+        const MAX_HISTORY = 4;
+
+        async function loadModels() {
+            try {
+                const response = await fetch('/v1/models');
+                const data = await response.json();
+                const select = document.getElementById('modelSelect');
+                
+                select.innerHTML = data.data
+                    .map(m => `<option value="${m.id}">${m.id} (${m.owned_by})</option>`)
+                    .join('');
+            } catch (e) {
+                console.error('Error loading models:', e);
+            }
+        }
+
+        async function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const modelSelect = document.getElementById('modelSelect');
+            const apiKey = document.getElementById('apiKey').value;
+            const message = messageInput.value.trim();
+            
+            if (!message || !modelSelect.value || !apiKey) return;
+
+            // Добавляем сообщение пользователя в историю
+            addMessageToUI('user', message);
+            
+            // Формируем историю сообщений
+            const messages = [
+                ...chatHistory.slice(-MAX_HISTORY * 2),
+                { role: 'user', content: message }
+            ];
+
+            const loadingIndicator = document.getElementById('loading');
+            try {
+                // Показать индикатор загрузки
+                loadingIndicator.style.display = 'flex';
+                const response = await fetch('/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: modelSelect.value,
+                        messages: messages,
+                        temperature: 0.7
+                    })
+                });
+
+                const data = await response.json();
+                const content = data.choices[0].message.content;
+                
+                // Добавляем ответ в историю
+                addMessageToUI('assistant', content);
+                chatHistory.push(
+                    { role: 'user', content: message },
+                    { role: 'assistant', content: content }
+                );
+
+                // Обработка изображений
+                const imageMatch = content.match(/\!\[image\]\((.*?)\)/);
+                if (imageMatch) {
+                    const imageUrl = `/v1/images/${imageMatch[1]}`;
+                    addImageToUI(imageUrl);
+                }
+
+            } catch (e) {
+                addMessageToUI('assistant', `Ошибка: ${e.message}`);
+            } finally {
+                // Скрыть индикатор в любом случае
+                loadingIndicator.style.display = 'none';
+            }
+            messageInput.value = '';
+        }
+
+        function addMessageToUI(role, content) {
+            const history = document.getElementById('chatHistory');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}-message`;
+            messageDiv.textContent = content.replace(/\!\[image\]\(.*?\)/, '');
+            history.appendChild(messageDiv);
+            history.scrollTop = history.scrollHeight;
+        }
+
+        function addImageToUI(imageUrl) {
+            const history = document.getElementById('chatHistory');
+            const img = document.createElement('img');
+            img.src = imageUrl;
+            history.appendChild(img);
+            history.scrollTop = history.scrollHeight;
+        }
+
+        // Инициализация
+        document.getElementById('sendButton').addEventListener('click', sendMessage);
+        document.getElementById('messageInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        loadModels();
+    </script>
+</body>
+</html>

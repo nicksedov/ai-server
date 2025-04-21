@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 model_service = ModelService()
 
 @router.get("/models", 
-           dependencies=[Depends(verify_auth)],
            response_model=ModelsListResponse,
            summary="Получение списка доступных моделей",
            description="Возвращает список всех доступных моделей из всех провайдеров (Ollama и Hugging Face)")
