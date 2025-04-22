@@ -7,7 +7,7 @@ from auth import verify_auth
 import logging
 import asyncio
 
-router = APIRouter(prefix="/v1")
+router = APIRouter(prefix="/v1", tags=['models'])
 logger = logging.getLogger(__name__)
 model_service = ModelService()
 

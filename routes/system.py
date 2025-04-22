@@ -8,7 +8,7 @@ from auth import verify_auth
 import logging
 import datetime
 
-router = APIRouter(prefix="/v1")
+router = APIRouter(prefix="/v1", tags=['system'])
 logger = logging.getLogger(__name__)
 system_service = SystemService()
 

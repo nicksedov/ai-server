@@ -8,7 +8,7 @@ from auth import verify_auth
 import logging
 import os
 
-router = APIRouter(prefix="/v1")
+router = APIRouter(prefix="/v1", tags=['images'])
 logger = logging.getLogger(__name__)
 image_service = ImageService()
 

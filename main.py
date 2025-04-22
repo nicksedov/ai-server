@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
-from fastapi.responses import FileResponse
-from routes import images, chat, models, system
+from routes import images, chat, models, system, ui
 from config import config
 from models_cache import model_cache
 import uvicorn
@@ -54,26 +53,7 @@ app.include_router(images.router)
 app.include_router(chat.router)
 app.include_router(models.router)
 app.include_router(system.router)
-
-@app.get('/', include_in_schema=False)
-async def index():
-    return FileResponse('resources/index.html', media_type='text/html')
-
-@app.get('/chat', include_in_schema=False)
-async def chat_interface():
-    return FileResponse('resources/chat.html', media_type='text/html')
-    
-@app.get('/favicon.ico', include_in_schema=False)
-async def favicon():
-    return FileResponse('resources/favicon.ico')
-
-@app.get('/styles.css', include_in_schema=False)
-async def css():
-    return FileResponse('resources/styles.css', media_type='text/css')
-
-@app.get('/avatar.jpg', include_in_schema=False)
-async def avatar():
-    return FileResponse('resources/AvatarPicture-128x128.jpg', media_type='image/jpeg')
+app.include_router(ui.router)
 
 if __name__ == "__main__":
     uvicorn.run(

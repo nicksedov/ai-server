@@ -7,7 +7,7 @@ from auth import verify_auth
 from models_cache import model_cache
 import logging
 
-router = APIRouter(prefix="/v1")
+router = APIRouter(prefix="/v1", tags=['chat'])
 logger = logging.getLogger(__name__)
 classifier = BertPromptClassifier()
 chat_service = ChatTextService()
