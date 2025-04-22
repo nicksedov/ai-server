@@ -47,7 +47,7 @@ openapi:
       type: "http"
       scheme: "bearer"
       bearerFormat: "UUID"
-      description: "Необходимый формат: Bearer <ваш-секретный-ключ>"
+      description: "Требуемый формат: UUID"
   security:
     - Bearer: []
 

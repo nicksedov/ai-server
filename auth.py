@@ -7,7 +7,7 @@ from config import config
 api_key_header = APIKeyHeader(
     name="Authorization",
     scheme_name="Bearer",
-    description="Введите API Key в формате: Bearer <ваш-ключ>",
+    description="Введите ключ доступа к API",
     auto_error=False
 )
 
