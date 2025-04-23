@@ -7,7 +7,7 @@ ollama:
   host: "localhost"
   port: 11434
   timeout: 300
-  default_model: "llama2"
+  default_model: "hf.co/RefalMachine/RuadaptQwen2.5-32B-Pro-Beta-GGUF:Q8_0"
 
 openapi:
   title: "AI Gateway"

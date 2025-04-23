@@ -27,9 +27,11 @@ async def chat_completion(
     try:
         model_cache.validate_model(body.model)
         provider = model_cache.get_provider(body.model)
+        
         if is_image_request(body):
             return await image_chat_service.handle_image_request(body)
-        return await chat_service.process_text_request(body)
+            
+        return await chat_service.process_text_request(body, provider)
     except HTTPException as he:
         raise he
     except Exception as e:

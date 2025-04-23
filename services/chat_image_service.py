@@ -20,13 +20,13 @@ class ChatImageService:
         
         for msg in reversed(chat_request.messages):
             if msg.role == "user" and msg.content:
-                generated_prompt = await self.generate_image_prompt(chat_request, msg.content)
-                time.sleep(1)
+                system_message = self.build_system_message(chat_request.messages)
+                generated_prompt = await self.generate_image_prompt(system_message, msg.content)
                 image_response = await self.image_service.generate_and_save_image(
                     model="black-forest-labs/FLUX.1-dev",
                     prompt=generated_prompt,
                     language='auto',
-                    size="512x512",
+                    size='512x512',
                     steps=50,
                     guidance_scale=4.5           
                 )
@@ -35,19 +35,23 @@ class ChatImageService:
                     image_path=image_response["filepath"]
                 )
 
-    async def generate_image_prompt(self, chat_request: ChatCompletionRequest, original_prompt: str):
-        system_message = self.build_system_message(chat_request.messages)
+    async def generate_image_prompt(self, system_prompt: str, original_prompt: str):
+        
+        system_message = ChatMessage(
+            role="system", 
+            content=system_prompt
+        )
         user_message = ChatMessage(
             role="user",
             content=f"Создай промпт для генерации изображения размером до 150 слов, основываясь на данном запросе: '{original_prompt}'"
         )
         
         payload = {
-            "model": chat_request.model,
+            "model": config.ollama.default_model,
             "messages": [m.dict() for m in [system_message, user_message]],
-            "temperature": chat_request.temperature or 0.7,
-            "top_p": chat_request.top_p or 1.0,
-            "max_tokens": chat_request.max_tokens,
+            "temperature": 0.7,
+            "top_p": 0.9,
+            "max_tokens": 300,
             "stream": False
         }
         
@@ -59,10 +63,10 @@ class ChatImageService:
             return original_prompt
 
     def build_system_message(self, messages: list[ChatMessage]):
-        system_content = "\n".join(
+        system_message = "\n".join(
             [msg.content for msg in messages if msg.role == "system"]
         ) + "\nСейчас ты помогаешь создавать промпты для генерации изображений."
-        return ChatMessage(role="system", content=system_content)
+        return system_message
 
     def create_image_response(self, prompt: str, image_path: str):
         filename = os.path.basename(image_path)

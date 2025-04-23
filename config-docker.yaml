@@ -8,7 +8,7 @@ ollama:
   host: "host.docker.internal"
   port: 11434
   timeout: 300  # секунды
-  default_model: "qwq:32b-q8_0"
+  default_model: "hf.co/RefalMachine/RuadaptQwen2.5-32B-Pro-Beta-GGUF:Q8_0"
 
 openapi:
   title: "AI Gateway"

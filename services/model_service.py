@@ -37,7 +37,12 @@ class ModelService:
             stream=False
         )
         response.raise_for_status()
-        return {"status": "success", "message": f"Model {model_id} downloaded", "model_id": model_id, "provider": "ollama"}
+        return {
+            "status": "success", 
+            "message": f"Model {model_id} downloaded", 
+            "model_id": model_id, 
+            "provider": "ollama"
+        }
 
     async def _download_huggingface_model(self, model_id: str, revision: str):
         snapshot_download(
@@ -46,7 +51,12 @@ class ModelService:
             resume_download=True,
             local_files_only=False
         )
-        return {"status": "success", "message": f"Model {model_id} downloaded", "model_id": model_id, "provider": "huggingface"}
+        return {
+            "status": "success", 
+            "message": f"Model {model_id} downloaded", 
+            "model_id": model_id, 
+            "provider": "huggingface"
+        }
 
     async def _delete_ollama_model(self, model_id: str):
         response = requests.delete(
