@@ -14,7 +14,6 @@ system_service = SystemService()
 
 @router.get("/system/info", 
            response_model=SystemInfoResponse,
-           dependencies=[Depends(verify_auth)],
            summary="Системная информация",
            description="Возвращает подробную информацию о состоянии системы, включая CPU, память и GPU")
 async def get_system_info():
@@ -31,7 +30,6 @@ async def get_system_info():
 
 @router.get("/torch/info", 
            response_model=TorchInfoResponse,
-           dependencies=[Depends(verify_auth)],
            summary="Диагностика PyTorch",
            description="Возвращает информацию о конфигурации PyTorch и CUDA")
 async def get_torch_info():
@@ -47,7 +45,6 @@ async def get_torch_info():
 
 @router.get("/ollama/info", 
           response_model=OllamaInfoResponse,
-          dependencies=[Depends(verify_auth)],
           summary="Диагностика Ollama",
           description="Проверяет статус интеграции с Ollama и возвращает информацию о доступных моделях")
 async def get_ollama_info():

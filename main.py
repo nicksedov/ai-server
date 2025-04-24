@@ -56,6 +56,11 @@ app.include_router(system.router)
 app.include_router(ui.router)
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        filename=config.logging.file_path, 
+        level=config.logging.level,
+        format=config.logging.format
+    )
     uvicorn.run(
         app,
         host=config.server.host,
