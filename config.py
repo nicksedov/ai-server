@@ -32,9 +32,7 @@ class LoggingConfig(BaseModel):
     file_path: str = "ai-server.log"
     level: str = "INFO"
     format: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    max_bytes: int = 10 * 1024 * 1024  # 10 MB
-    backup_count: int = 5
-    enable_console: bool = True
+    datefmt: str = "%Y-%m-%d %H:%M:%S,XXX"
 
 class OllamaConfig(BaseModel):
     host: str = "localhost"

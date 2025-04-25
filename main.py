@@ -59,7 +59,8 @@ if __name__ == "__main__":
     logging.basicConfig(
         filename=config.logging.file_path, 
         level=config.logging.level,
-        format=config.logging.format
+        format=config.logging.format,
+        datefmt=config.logging.datefmt
     )
     uvicorn.run(
         app,

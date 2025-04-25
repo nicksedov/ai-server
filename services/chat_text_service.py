@@ -40,6 +40,7 @@ class ChatTextService:
                 model_id,
                 device_map="auto",
                 torch_dtype=torch.bfloat16,
+                low_cpu_mem_usage=True,
                 offload_state_dict=True
             )
             pipe = pipeline(

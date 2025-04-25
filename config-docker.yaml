@@ -54,4 +54,5 @@ openapi:
 logging:
   file_path: "/var/log/ai-server.log"
   level: "INFO"
-  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  format: "%(asctime)s [%(name)-16s] %(levelname)s %(message)s"
+  datefmt: "%Y-%m-%d %H:%M:%S"
