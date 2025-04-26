@@ -9,3 +9,4 @@ venv/
 *.sqlite
 .git/
 .idea/
+deploy.sh
