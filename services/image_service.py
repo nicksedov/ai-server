@@ -2,7 +2,7 @@ import torch
 from diffusers import FluxPipeline, AutoencoderKL, FluxTransformer2DModel
 from diffusers.image_processor import VaeImageProcessor
 from typing import Dict
-from utils import translate_to_english
+from .translation_service import translate_to_english
 from config import config
 import datetime
 import os

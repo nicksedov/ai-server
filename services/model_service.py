@@ -1,4 +1,6 @@
-from huggingface_hub import scan_cache_dir, snapshot_download, HFCacheInfo
+from huggingface_hub import scan_cache_dir, snapshot_download, HFCacheInfo, HfApi, ModelInfo
+from transformers import AutoConfig, AutoTokenizer
+import warnings
 from config import config
 from pathlib import Path
 from typing import List, Dict
@@ -164,3 +166,34 @@ class ModelService:
             logger.error(f"Huggingface models error: {str(e)}")
 
         return models
+
+    def _is_chat_model(self, model_id: str) -> bool:
+        """
+        Проверяет, может ли модель использоваться для генерации ответов чат-бота.
+        Возвращает True/False.
+        """
+        try:
+            # Получаем информацию о модели
+            api = HfApi()
+            model_info = api.model_info(model_id)
+            config = AutoConfig.from_pretrained(model_id, trust_remote_code=True)
+            
+            # 1. Проверяем теги репозитория
+            tags = [tag.lower() for tag in model_info.tags]
+            has_chat_tags = any(tag in tags for tag in [
+                'chat', 'conversational', 'text-generation', 'chat-completion', 'dialog'
+            ])
+
+            # 2. Проверяем наличие чат-шаблона в токенизаторе
+            try:
+                tokenizer = AutoTokenizer.from_pretrained(model_id)
+                has_chat_template = tokenizer.chat_template is not None
+            except:
+                has_chat_template = False
+
+            # Решаем на основе комбинации факторов
+            return (has_chat_tags or has_chat_template)
+
+        except Exception as e:
+            warnings.warn(f"Error checking model {model_id}: {str(e)}")
+            return False
