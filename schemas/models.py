@@ -29,6 +29,7 @@ class ModelResponse(BaseModel):
     created: int
     owned_by: str
     object: str = "model"
+    is_chat: bool = False
 
 class ModelsListResponse(BaseModel):
     object: str = "list"

@@ -107,7 +107,8 @@ class ModelService:
                 models.append({
                     "id": model["name"],
                     "created": modified_time,
-                    "owned_by": "ollama"
+                    "owned_by": "ollama",
+                    "is_chat": True
                 })
 
         except Exception as e:
@@ -159,7 +160,8 @@ class ModelService:
                 models.append({
                     "id": model_id,
                     "created": created,
-                    "owned_by": "huggingface"
+                    "owned_by": "huggingface",
+                    "is_chat": self._is_chat_model(model_id)
                 })
 
         except Exception as e:

@@ -14,12 +14,13 @@ model_service = ModelService()
 @router.get("/models", 
            response_model=ModelsListResponse,
            summary="Получение списка доступных моделей",
-           description="Возвращает список всех доступных моделей из всех провайдеров (Ollama и Hugging Face)")
-async def list_models():
+           description="""Возвращает список всех доступных моделей из всех провайдеров (Ollama и Hugging Face).
+           При передаче параметра chat=true возвращает только чат-оптимизированные модели""")
+async def list_models(chat: bool = False):  # Изменяем тип параметра на bool
     """Get list of available models from all providers"""
     try:
         models = await model_service.get_all_models()
-        return format_models_response(models)
+        return format_models_response(models, chat)  # Передаем параметр в форматирование
     except Exception as e:
         logger.error(f"Failed to list models: {str(e)}", exc_info=True)
         raise HTTPException(
@@ -87,15 +88,21 @@ async def delete_model(request: DeleteRequest):
             detail=f"Model deletion failed: {str(e)}"
         )
 
-def format_models_response(models: list) -> ModelsListResponse:
+def format_models_response(models: list, chat: bool) -> ModelsListResponse:  # Добавляем параметр
+    filtered_models = [
+        m for m in models 
+        if not chat or (chat and m["is_chat"])  # Фильтрация по is_chat при chat=true
+    ]
+    
     return ModelsListResponse(
         data=sorted(
             [
                 ModelResponse(
                     id=m["id"],
                     created=m["created"],
-                    owned_by=m["owned_by"]
-                ) for m in models
+                    owned_by=m["owned_by"],
+                    is_chat=m["is_chat"]
+                ) for m in filtered_models  # Используем отфильтрованный список
             ],
             key=lambda x: x.created,
             reverse=True
