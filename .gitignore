@@ -10,3 +10,4 @@ venv/
 .git/
 .idea/
 deploy.sh
+generated_prompt.md

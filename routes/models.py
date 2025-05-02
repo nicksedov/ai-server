@@ -16,18 +16,18 @@ model_service = ModelService()
            summary="Получение списка доступных моделей",
            description="""Возвращает список всех доступных моделей из всех провайдеров (Ollama и Hugging Face).
            При передаче параметра chat=true возвращает только чат-оптимизированные модели""")
-async def list_models(chat: bool = False):  # Изменяем тип параметра на bool
+async def list_models(chat: bool = False):
     """Get list of available models from all providers"""
     try:
-        models = await model_service.get_all_models()
-        return format_models_response(models, chat)  # Передаем параметр в форматирование
+        models = model_cache.get_all_models()
+        return format_models_response(models, chat)
     except Exception as e:
         logger.error(f"Failed to list models: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Failed to retrieve models list"
         )
-
+        
 @router.post("/models/download", 
             dependencies=[Depends(verify_auth)],
             response_model=DownloadResponse,

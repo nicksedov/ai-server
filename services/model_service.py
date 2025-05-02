@@ -178,7 +178,7 @@ class ModelService:
             # Получаем информацию о модели
             api = HfApi()
             model_info = api.model_info(model_id)
-            config = AutoConfig.from_pretrained(model_id, trust_remote_code=True)
+            config = AutoConfig.from_pretrained(model_id, trust_remote_code=True, local_files_only=True)
             
             # 1. Проверяем теги репозитория
             tags = [tag.lower() for tag in model_info.tags]
