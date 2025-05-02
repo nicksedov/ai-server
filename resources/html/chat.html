@@ -36,7 +36,7 @@
 
         async function loadModels() {
             try {
-                const response = await fetch('/v1/models');
+                const response = await fetch('/v1/models?chat=true');
                 const data = await response.json();
                 const select = document.getElementById('modelSelect');
                 
