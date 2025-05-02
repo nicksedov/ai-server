@@ -40,11 +40,26 @@ class OllamaConfig(BaseModel):
     timeout: int = Field(300, ge=10, le=600)
     default_model: str
 
+class ImageGenerationConfig(BaseModel):
+    default_model: str = "black-forest-labs/FLUX.1-dev"
+    default_size: str = "512x512"
+    default_steps: int = 50
+    default_guidance_scale: float = 4.5
+    default_language: str = "auto"
+
+class PromptGenerationConfig(BaseModel):
+    temperature: float = 0.7
+    top_p: float = 0.9
+    max_tokens: int = 300
+    system_message: str = "Сейчас ты помогаешь создавать промпты для генерации изображений."
+
 class AppConfig(BaseModel):
     server: ServerConfig
     ollama: OllamaConfig
     openapi: OpenAPIConfig
     logging: LoggingConfig
+    image_generation: ImageGenerationConfig
+    prompt_generation: PromptGenerationConfig
 
 def load_config(config_path: Optional[Path] = None) -> AppConfig:
     # Поиск конфига по умолчанию

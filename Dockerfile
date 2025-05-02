@@ -34,7 +34,7 @@ COPY resources/ ./resources/
 
 EXPOSE 7999 11434
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+HEALTHCHECK --interval=60s --timeout=10s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:7999/v1/health -H "Content-Type: application/json" || exit 1
 
 CMD ["python3", "main.py", "--config", "config-docker.yaml"]
