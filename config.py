@@ -47,19 +47,22 @@ class ImageGenerationConfig(BaseModel):
     default_guidance_scale: float = 4.5
     default_language: str = "auto"
 
-class PromptGenerationConfig(BaseModel):
+class ImagePromptConfig(BaseModel):
     temperature: float = 0.7
     top_p: float = 0.9
     max_tokens: int = 300
     system_message: str = "Сейчас ты помогаешь создавать промпты для генерации изображений."
+
+class ChatConfig(BaseModel):
+    image_generation: ImageGenerationConfig = Field(default_factory=ImageGenerationConfig)
+    image_prompt: ImagePromptConfig = Field(default_factory=ImagePromptConfig)
 
 class AppConfig(BaseModel):
     server: ServerConfig
     ollama: OllamaConfig
     openapi: OpenAPIConfig
     logging: LoggingConfig
-    image_generation: ImageGenerationConfig
-    prompt_generation: PromptGenerationConfig
+    chat: ChatConfig
 
 def load_config(config_path: Optional[Path] = None) -> AppConfig:
     # Поиск конфига по умолчанию

@@ -24,12 +24,12 @@ class ChatImageService:
                     msg.content
                 )
                 image_response = await self.image_service.generate_and_save_image(
-                    model=config.image_generation.default_model,
+                    model=config.chat.image_generation.default_model,
                     prompt=generated_prompt,
-                    language=config.image_generation.default_language,
-                    size=config.image_generation.default_size,
-                    steps=config.image_generation.default_steps,
-                    guidance_scale=config.image_generation.default_guidance_scale
+                    language=config.chat.image_generation.default_language,
+                    size=config.chat.image_generation.default_size,
+                    steps=config.chat.image_generation.default_steps,
+                    guidance_scale=config.chat.image_generation.default_guidance_scale
                 )
                 return self.create_image_response(
                     prompt=image_response["prompt"],
@@ -49,9 +49,9 @@ class ChatImageService:
         payload = {
             "model": config.ollama.default_model,
             "messages": [m.dict() for m in [system_message, user_message]],
-            "temperature": config.prompt_generation.temperature,
-            "top_p": config.prompt_generation.top_p,
-            "max_tokens": config.prompt_generation.max_tokens,
+            "temperature": config.chat.image_prompt.temperature,
+            "top_p": config.chat.image_prompt.top_p,
+            "max_tokens": config.chat.image_prompt.max_tokens,
             "stream": False
         }
         
@@ -66,7 +66,7 @@ class ChatImageService:
         system_messages = "\n".join(
             [msg.content for msg in messages if msg.role == "system"]
         )
-        return f"{system_messages}\n{config.prompt_generation.system_message}"
+        return f"{system_messages}\n{config.chat.image_prompt.system_message}"
 
     def create_image_response(self, prompt: str, image_path: str):
         filename = os.path.basename(image_path)
