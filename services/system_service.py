@@ -101,7 +101,6 @@ class SystemService:
                 details={
                     "host": self.ollama_base,
                     "timeout": self.timeout,
-                    "default_model": config.ollama.default_model
                 }
             )
 

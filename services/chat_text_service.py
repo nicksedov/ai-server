@@ -25,6 +25,7 @@ class ChatTextService:
         raise HTTPException(400, "Unsupported model provider")
 
     async def _process_ollama_request(self, body: ChatCompletionRequest):
+        logger.info(f"Passing chat request to Ollama backend. Language model applied: {body.model}")
         payload = self._prepare_ollama_payload(body)
         response = await self.ollama.chat(payload)
         return self._format_response(body, response)
@@ -35,7 +36,7 @@ class ChatTextService:
         messages = [m.dict() for m in body.messages]
         
         try:
-            logger.info(f"Loading Hugging Face model: {model_id}")
+            logger.info(f"Loading Hugging Face model and tokenizer: {model_id}")
             tokenizer = AutoTokenizer.from_pretrained(model_id)
             model = AutoModelForCausalLM.from_pretrained(
                 model_id,
@@ -50,6 +51,7 @@ class ChatTextService:
                 tokenizer=tokenizer
             )
 
+            logger.info(f"Passing chat request to Hugging Face model: {model_id}")
             prompt = self._format_messages(messages)
             generator = pipe(
                 prompt,
@@ -99,6 +101,8 @@ class ChatTextService:
         }
 
     def _format_response(self, request: ChatCompletionRequest, response: dict):
+        logger.info("Processing text model response")
+
         # Извлекаем оригинальное сообщение
         message = response["message"].copy()
         original_content = message["content"]

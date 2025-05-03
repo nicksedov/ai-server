@@ -38,7 +38,6 @@ class OllamaConfig(BaseModel):
     host: str = "localhost"
     port: int = 11434
     timeout: int = Field(300, ge=10, le=600)
-    default_model: str
 
 class ImageGenerationConfig(BaseModel):
     default_model: str = "black-forest-labs/FLUX.1-dev"
@@ -48,6 +47,7 @@ class ImageGenerationConfig(BaseModel):
     default_language: str = "auto"
 
 class ImagePromptConfig(BaseModel):
+    default_model: str = "hf.co/RefalMachine/RuadaptQwen2.5-32B-Pro-Beta-GGUF:Q8_0"
     temperature: float = 0.7
     top_p: float = 0.9
     max_tokens: int = 300
