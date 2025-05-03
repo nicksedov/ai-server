@@ -9,6 +9,7 @@ import logging
 import uuid
 import time
 import gc
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -98,6 +99,16 @@ class ChatTextService:
         }
 
     def _format_response(self, request: ChatCompletionRequest, response: dict):
+        # Извлекаем оригинальное сообщение
+        message = response["message"].copy()
+        original_content = message["content"]
+        
+        # Обрабатываем секции с размышлениями
+        processed_content = self._process_reflections(original_content)
+        
+        # Создаем финальное сообщение
+        message["content"] = processed_content
+        
         return {
             "id": f"chatcmpl-{uuid.uuid4()}",
             "object": "chat.completion",
@@ -105,11 +116,37 @@ class ChatTextService:
             "model": request.model,
             "choices": [{
                 "index": 0,
-                "message": response["message"],
+                "message": message,
                 "finish_reason": "stop" if response["done"] else "length"
             }],
             "usage": self._calculate_usage(response)
         }
+
+    def _process_reflections(self, content: str) -> str:
+        """Форматирует секции размышлений в свернутые блоки"""
+        # Регулярное выражение для поиска секций
+        pattern = re.compile(
+            r'<think>(.*?)</think>',
+            re.DOTALL  # Для захвата многострочных блоков
+        )
+        
+        # Замена на HTML-теги
+        processed = pattern.sub(
+            self._wrap_reflection,
+            content
+        )
+        
+        return processed.strip()
+
+    def _wrap_reflection(self, match: re.Match) -> str:
+        """Оборачивает размышления в теги details/summary"""
+        reflection_text = match.group(1).strip()
+        return (
+            '\n\n<details class="reflection">'
+            '<summary>Размышления модели</summary>'
+            f'{reflection_text}'
+            '</details>'
+        )
 
     def _calculate_usage(self, response: dict):
         return {
