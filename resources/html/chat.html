@@ -6,6 +6,8 @@
     <title>AI Chat Interface</title>
     <link href="/css/styles.css" rel="stylesheet">
     <link href="/css/chat.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
 </head>
 <body>
     <div class="chat-container">
@@ -92,14 +94,6 @@
                     { role: 'user', content: message },
                     { role: 'assistant', content: content }
                 );
-
-                // Обработка изображений
-                const imageMatch = content.match(/\!\[image\]\((.*?)\)/);
-                if (imageMatch) {
-                    const imageUrl = `/v1/images/${imageMatch[1]}`;
-                    addImageToUI(imageUrl);
-                }
-
             } catch (e) {
                 addMessageToUI('assistant', `Ошибка: ${e.message}`);
             } finally {
@@ -113,16 +107,16 @@
             const history = document.getElementById('chatHistory');
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${role}-message`;
-            messageDiv.textContent = content.replace(/\!\[image\]\(.*?\)/, '');
+            
+            // Рендеринг Markdown с санитизацией
+            const cleanHtml = DOMPurify.sanitize(marked.parse(content, {
+                breaks: true,
+                gfm: true,
+                smartypants: true
+            }));
+            
+            messageDiv.innerHTML = cleanHtml;
             history.appendChild(messageDiv);
-            history.scrollTop = history.scrollHeight;
-        }
-
-        function addImageToUI(imageUrl) {
-            const history = document.getElementById('chatHistory');
-            const img = document.createElement('img');
-            img.src = imageUrl;
-            history.appendChild(img);
             history.scrollTop = history.scrollHeight;
         }
 

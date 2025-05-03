@@ -78,7 +78,7 @@ class ChatImageService:
             "choices": [{
                 "message": {
                     "role": "assistant",
-                    "content": f"![image]({filename}) {prompt}"
+                    "content": f"![image](/v1/images/{filename})\n\n<details><summary>Описание</summary>{prompt}</details>"
                 }
             }],
             "usage": self._approx_usage(prompt)

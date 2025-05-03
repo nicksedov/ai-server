@@ -22,6 +22,65 @@
     max-width: 80%;
 }
 
+.message :is(h1, h2, h3) {
+    color: inherit;
+    margin: 0.5rem 0;
+    font-weight: 600;
+}
+
+.message p {
+    margin: 0.5rem 0;
+    line-height: 1.5;
+}
+
+.message a {
+    color: #93c5fd;
+    text-decoration: underline;
+}
+
+.message code {
+    background: rgba(255,255,255,0.1);
+    padding: 0.2em 0.4em;
+    border-radius: 0.3em;
+    font-family: monospace;
+}
+
+.message pre {
+    background: #0F172A;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+}
+
+.message pre code {
+    background: transparent;
+    padding: 0;
+}
+
+.message blockquote {
+    border-left: 3px solid #2F80ED;
+    margin: 1rem 0;
+    padding-left: 1rem;
+    color: #94a3b8;
+}
+
+.message ul, .message ol {
+    padding-left: 1.5rem;
+    margin: 0.5rem 0;
+}
+
+.message li {
+    margin: 0.25rem 0;
+}
+
+.message img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+    margin: 0.5rem 0;
+}
+
 .user-message {
     background: #2F80ED;
     margin-left: auto;
