@@ -2,7 +2,31 @@ server:
   host: "0.0.0.0"
   port: 7999
   output_path: "/app/storage/output"
-  api_key: cbebbe70-0ba4-494f-8c85-41da575228d9
+  api_keys:
+    - key: "cbebbe70-0ba4-494f-8c85-41da575228d9"
+      name: "Ключ для сервиса GPTBot"
+      valid_from: "2024-01-01T00:00:00+03:00"
+      valid_until: "2050-01-01T00:00:00+03:00"
+    - key: "eIq48NcBFpt2"
+      name: "Пользовательский ключ заблокирован"
+      valid_from: "2025-04-01T00:00:00+03:00"
+      valid_until: "2025-05-01T00:00:00+03:00"
+      enabled: false
+    - key: "8Hntb2BJCjMx"
+      name: "Пользовательский ключ на апрель 2025"
+      valid_from: "2025-04-01T00:00:00+03:00"
+      valid_until: "2025-05-01T00:00:00+03:00"
+      enabled: true
+    - key: "wBZWu4xzB8GN"
+      name: "Пользовательский ключ на май 2025"
+      valid_from: "2025-05-01T00:00:00+03:00"
+      valid_until: "2025-06-01T00:00:00+03:00"
+      enabled: true
+    - key: "unE5Gm6eAaG2"
+      name: "Пользовательский ключ на июнь 2025"
+      valid_from: "2025-06-01T00:00:00+03:00"
+      valid_until: "2025-07-01T00:00:00+03:00"
+      enabled: true
 
 ollama:
   host: "host.docker.internal"

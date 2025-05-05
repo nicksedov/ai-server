@@ -58,7 +58,6 @@
             
             if (!message || !modelSelect.value || !apiKey) return;
 
-            // Добавляем сообщение пользователя в историю
             addMessageToUI('user', message);
             
             // Формируем историю сообщений
@@ -66,14 +65,15 @@
                 ...chatHistory.slice(-MAX_HISTORY * 2),
                 { role: 'user', content: message }
             ];
+            
             const btn = document.getElementById('sendButton');
             const originalText = btn.innerHTML;
+            
             try {
                 btn.classList.add('sending');
                 btn.disabled = true;
                 messageInput.value = '';
 
-                // Показать индикатор загрузки
                 const response = await fetch('/v1/chat/completions', {
                     method: 'POST',
                     headers: {
@@ -87,6 +87,19 @@
                     })
                 });
 
+                // Обработка HTTP ошибок
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    let errorMessage = 'Ошибка сервера';
+                    
+                    // Обработка специфических ошибок авторизации
+                    if (response.status === 401) {
+                        errorMessage = errorData.detail || 'Неверный API ключ';
+                    }
+                    
+                    throw new Error(`${errorMessage}`);
+                }
+
                 const data = await response.json();
                 const content = data.choices[0].message.content;
                 
@@ -97,13 +110,17 @@
                     { role: 'assistant', content: content }
                 );
             } catch (e) {
-                addMessageToUI('assistant', `Ошибка: ${e.message}`);
+                // Специальная обработка сетевых ошибок
+                if (e.name === 'TypeError' && e.message === 'Failed to fetch') {
+                    addMessageToUI('assistant', 'Ошибка соединения с сервером');
+                } else {
+                    addMessageToUI('assistant', `Ошибка: ${e.message}`);
+                }
             } finally {
                 btn.classList.remove('sending');
                 btn.disabled = false;
             }
         }
-
         function addMessageToUI(role, content) {
             const history = document.getElementById('chatHistory');
             const messageDiv = document.createElement('div');

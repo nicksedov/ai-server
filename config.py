@@ -2,6 +2,7 @@ import os
 import yaml
 import argparse
 from pathlib import Path
+from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, Field
 from typing import List, Dict
@@ -22,11 +23,18 @@ class OpenAPIConfig(BaseModel):
     }
     security: List[Dict] = [{"Bearer": []}]
 
+class ApiKeyConfig(BaseModel):
+    key: str
+    name: Optional[str] = None
+    valid_from: Optional[datetime] = None
+    valid_until: Optional[datetime] = None
+    enabled: bool = True
+
 class ServerConfig(BaseModel):
     host: str = "0.0.0.0"
     port: int = 8000
     output_path: str = "/tmp"
-    api_key: str = None
+    api_keys: List[ApiKeyConfig] = []
 
 class LoggingConfig(BaseModel):
     file_path: str = "ai-server.log"
