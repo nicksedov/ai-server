@@ -30,6 +30,7 @@ class ModelResponse(BaseModel):
     owned_by: str
     object: str = "model"
     is_chat: bool = False
+    is_multimodal: bool = False
 
 class ModelsListResponse(BaseModel):
     object: str = "list"

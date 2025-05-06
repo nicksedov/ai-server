@@ -20,6 +20,7 @@ class ModelCache:
                     m["id"]: {
                         "provider": m["owned_by"],
                         "is_chat": m["is_chat"],
+                        "is_multimodal": m["is_multimodal"],
                         "created": m["created"]
                     } for m in models
                 }
@@ -27,9 +28,6 @@ class ModelCache:
             except Exception as e:
                 logger.error(f"Error refreshing model cache: {str(e)}")
 
-    def get_provider(self, model_id: str) -> str:
-        return self._cache.get(model_id, {}).get("provider")
-    
     def validate_model(self, model_id: str):
         if model_id not in self._cache:
             raise HTTPException(
@@ -37,13 +35,20 @@ class ModelCache:
                 detail=f"Model '{model_id}' not found"
             )
     
+    def get_provider(self, model_id: str) -> str:
+        return self._cache.get(model_id, {}).get("provider")
+    
+    def is_multimodal(self, model_id: str) -> bool:
+        return self._cache.get(model_id, {}).get("is_multimodal")
+    
     def get_all_models(self) -> List[dict]:
         return [
             {
                 "id": model_id,
                 "created": details["created"],
                 "owned_by": details["provider"],
-                "is_chat": details["is_chat"]
+                "is_chat": details["is_chat"],
+                "is_multimodal": details["is_multimodal"]
             } for model_id, details in self._cache.items()
         ]
 

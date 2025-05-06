@@ -101,7 +101,8 @@ def format_models_response(models: list, chat: bool) -> ModelsListResponse:  # �
                     id=m["id"],
                     created=m["created"],
                     owned_by=m["owned_by"],
-                    is_chat=m["is_chat"]
+                    is_chat=m["is_chat"],
+                    is_multimodal=m["is_multimodal"]
                 ) for m in filtered_models  # Используем отфильтрованный список
             ],
             key=lambda x: x.created,

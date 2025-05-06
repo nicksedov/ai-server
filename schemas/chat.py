@@ -1,8 +1,14 @@
 from pydantic import BaseModel, Field
+from typing import Union, List, Dict, Optional
+
+class ChatContentItem(BaseModel):
+    type: str  # text/image
+    text: Optional[str] = None
+    image_url: Optional[Dict[str, str]] = None
 
 class ChatMessage(BaseModel):
     role: str = "user"
-    content: str = "Назови планеты Солнечной системы"
+    content: Union[str, List[ChatContentItem]]
 
 class ChatCompletionRequest(BaseModel):
     model: str

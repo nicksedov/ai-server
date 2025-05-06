@@ -3,6 +3,7 @@ from schemas.chat import ChatCompletionRequest, ChatMessage
 from services.bert_prompt_classifier import BertPromptClassifier
 from services.chat_text_service import ChatTextService
 from services.chat_image_service import ChatImageService
+from services.multimodal_service import MultimodalService
 from auth import verify_auth
 from models_cache import model_cache
 import logging
@@ -12,6 +13,7 @@ logger = logging.getLogger(__name__)
 classifier = BertPromptClassifier()
 chat_service = ChatTextService()
 image_chat_service = ChatImageService()
+multimodal_service = MultimodalService()
 
 @router.post("/chat/completions", 
             dependencies=[Depends(verify_auth)],
@@ -27,6 +29,9 @@ async def chat_completion(
     try:
         model_cache.validate_model(body.model)
         provider = model_cache.get_provider(body.model)
+        
+        if provider=="huggingface" and model_cache.is_multimodal(body.model):
+            return await multimodal_service.process_request(body, provider)
         
         if is_image_request(body):
             return await image_chat_service.handle_image_request(body)

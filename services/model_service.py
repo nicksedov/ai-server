@@ -9,6 +9,8 @@ import requests
 import logging
 import time
 
+logger = logging.getLogger(__name__)
+
 class ModelService:
     def __init__(self):
         self.ollama_base = f"http://{config.ollama.host}:{config.ollama.port}"
@@ -67,7 +69,12 @@ class ModelService:
             timeout=self.timeout
         )
         response.raise_for_status()
-        return {"status": "success", "message": f"Model {model_id} deleted", "model_id": model_id, "provider": "ollama"}
+        return {
+            "status": "success", 
+            "message": f"Model {model_id} deleted", 
+            "model_id": model_id, 
+            "provider": "ollama"
+        }
 
     async def _delete_huggingface_model(self, model_id: str, purge: bool):
         cache_info = scan_cache_dir()
@@ -84,7 +91,11 @@ class ModelService:
                     deleted = True
                 except Exception as e:
                     continue
-        return {"status": "success" if deleted else "failed", "model_id": model_id, "provider": "huggingface"}
+        return {
+            "status": "success" if deleted else "failed",
+            "model_id": model_id,
+            "provider": "huggingface"
+        }
     
     def _get_ollama_models(self) -> List[Dict]:
         models = []
@@ -108,7 +119,8 @@ class ModelService:
                     "id": model["name"],
                     "created": modified_time,
                     "owned_by": "ollama",
-                    "is_chat": True
+                    "is_chat": True,
+                    "is_multimodal": self._is_multimodal(self._get_ollama_tags(model["name"]))
                 })
 
         except Exception as e:
@@ -161,7 +173,8 @@ class ModelService:
                     "id": model_id,
                     "created": created,
                     "owned_by": "huggingface",
-                    "is_chat": self._is_chat_model(model_id)
+                    "is_chat": self._is_huggingface_chat_model(model_id),
+                    "is_multimodal": self._is_multimodal(self._get_huggingface_tags(model_id))
                 })
 
         except Exception as e:
@@ -169,33 +182,58 @@ class ModelService:
 
         return models
 
-    def _is_chat_model(self, model_id: str) -> bool:
+    def _is_huggingface_chat_model(self, model_id: str) -> bool:
         """
         Проверяет, может ли модель использоваться для генерации ответов чат-бота.
         Возвращает True/False.
         """
         try:
-            # Получаем информацию о модели
-            api = HfApi()
-            model_info = api.model_info(model_id)
-            config = AutoConfig.from_pretrained(model_id, trust_remote_code=True, local_files_only=True)
-            
             # 1. Проверяем теги репозитория
-            tags = [tag.lower() for tag in model_info.tags]
+            tags = [tag.lower() for tag in self._get_huggingface_tags(model_id)]
             has_chat_tags = any(tag in tags for tag in [
                 'chat', 'conversational', 'text-generation', 'chat-completion', 'dialog'
             ])
-
-            # 2. Проверяем наличие чат-шаблона в токенизаторе
-            try:
-                tokenizer = AutoTokenizer.from_pretrained(model_id)
-                has_chat_template = tokenizer.chat_template is not None
-            except:
-                has_chat_template = False
-
-            # Решаем на основе комбинации факторов
-            return (has_chat_tags or has_chat_template)
-
+            if has_chat_tags:
+                return True
         except Exception as e:
             warnings.warn(f"Error checking model {model_id}: {str(e)}")
             return False
+
+        # 2. Проверяем наличие чат-шаблона в токенизаторе
+        try:
+            tokenizer = AutoTokenizer.from_pretrained(model_id)
+            has_chat_template = tokenizer.chat_template is not None
+        except:
+            has_chat_template = False
+        return has_chat_template
+
+    
+        
+    def _get_huggingface_tags(self, model_id: str) -> List[str]:
+        """Получение тегов модели из Hugging Face Hub"""
+        try:
+            model_info = HfApi().model_info(model_id)
+            return model_info.tags
+        except Exception as e:
+            logger.warning(f"Can't get tags for {model_id}: {str(e)}")
+            return []
+
+    def _get_ollama_tags(self, model_id: str) -> List[str]:
+        """Получение тегов модели Ollama через API"""
+        try:
+            response = requests.post(
+                f"{self.ollama_base}/api/show",
+                json={"name": model_id},
+                timeout=config.ollama.timeout
+            )
+            response.raise_for_status()
+            details = response.json()
+            
+            # Анализ параметров модели
+            return details.get('capabilities')
+        except Exception as e:
+            logger.warning(f"Can't get Ollama model tags: {str(e)}")
+            return []
+
+    def _is_multimodal(self, tags: List[str]) -> bool:
+        return any(tag in tags for tag in ["multimodal", "vision", "vl", "image-text-to-text"])
