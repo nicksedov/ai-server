@@ -6,21 +6,16 @@ import io
 import logging
 import uuid
 import time
+import gc
 
 logger = logging.getLogger(__name__)
 
 class MultimodalService:
-    def __init__(self):
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        self.loaded_models = {}
 
     async def process_request(self, request, provider):
         model_id = request.model
-        if model_id not in self.loaded_models:
-            self._load_model(model_id)
-
-        processor = self.loaded_models[model_id]["processor"]
-        model = self.loaded_models[model_id]["model"]
+        processor = self._load_processor(model_id)
+        model = self._load_model(model_id)
         
         # Process messages
         inputs = await self._prepare_inputs(processor, request.messages)
@@ -33,21 +28,26 @@ class MultimodalService:
             generated_ids, 
             skip_special_tokens=True
         )[0]
+
+        inputs.to("cpu")
         
+        del model
+        del processor
+        self.flush()
+
         return self._format_response(request, generated_text)
 
     def _load_model(self, model_id):
         logger.info(f"Loading multimodal model: {model_id}")
-        processor = AutoProcessor.from_pretrained(model_id)
-        model = AutoModelForVision2Seq.from_pretrained(
+        return AutoModelForVision2Seq.from_pretrained(
             model_id,
             torch_dtype=torch.bfloat16,
             device_map="auto"
         )
-        self.loaded_models[model_id] = {
-            "processor": processor,
-            "model": model
-        }
+
+    def _load_processor(self, model_id):
+        logger.info(f"Loading model processor: {model_id}")
+        return AutoProcessor.from_pretrained(model_id)
 
     async def _prepare_inputs(self, processor, messages):
         text = []
@@ -70,8 +70,8 @@ class MultimodalService:
             return_tensors="pt",
             padding=True,
             truncation=True,
-            max_length=2048,
-        ).to(self.device)
+            max_length=2048
+        ).to("cuda")
 
         return inputs
 
@@ -96,3 +96,12 @@ class MultimodalService:
                 "finish_reason": "stop"
             }]
         }
+    
+    def flush(self):
+        torch.cuda.empty_cache()
+        for i in range(torch.cuda.device_count()):
+            torch.cuda.reset_max_memory_allocated(i)
+            torch.cuda.reset_max_memory_cached(i)
+            torch.cuda.reset_peak_memory_stats(i)
+            torch.cuda.reset_accumulated_memory_stats(i)
+        gc.collect()
