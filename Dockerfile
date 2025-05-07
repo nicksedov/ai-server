@@ -4,7 +4,6 @@ FROM nvidia/cuda:12.8.1-base-ubuntu22.04
 # Установка системных зависимостей
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        python3.11 \
         python3-pip \
         curl \
         libgl1 \

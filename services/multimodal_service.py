@@ -58,16 +58,22 @@ class MultimodalService:
                 for item in msg.content:
                     if item.type == "text":
                         text.append(item.text)
-                    elif item.type == "image":
+                    elif item.type == "image_url":
                         images.append(await self._decode_image(item.image_url["url"]))
             else:
                 text.append(msg.content)
         
-        return processor(
-            text=text[-1] if text else "",
-            images= images if images else None,
-            return_tensors="pt"
+        final_prompt = text[-1] if text else "You are an assistant who helps describe what is shown in the picture"
+        inputs = processor(
+            text=final_prompt,
+            images=images if images else None,
+            return_tensors="pt",
+            padding=True,
+            truncation=True,
+            max_length=2048,
         ).to(self.device)
+
+        return inputs
 
     async def _decode_image(self, url):
         # Extract base64 data
