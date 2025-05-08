@@ -83,10 +83,16 @@
                 
                 // Сохраняем информацию о моделях
                 window.modelInfoMap = modelMap;
-                
+
                 // Обработчик изменения модели
                 select.addEventListener('change', updateUIForModel);
-                
+
+                // Автоматически выбираем первую опцию
+                if (data.data.length > 0) {
+                    select.selectedIndex = 0;
+                    // Триггерим событие изменения для обновления UI
+                    select.dispatchEvent(new Event('change'));
+                }
             } catch (e) {
                 console.error('Error loading models:', e);
             }
