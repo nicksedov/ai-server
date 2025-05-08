@@ -83,7 +83,11 @@ class MultimodalService:
             else:
                 text.append(msg.content)
         
-        final_prompt = text[-1] if text else "Describe the image"
+        # Вызываем новую функцию для формирования промпта
+        final_prompt = self._build_final_prompt(
+            text_parts=text,
+            num_images=len(images)
+        )
         inputs = processor(
             text=final_prompt,
             images=images if images else None,
@@ -95,6 +99,24 @@ class MultimodalService:
 
         return inputs
 
+    def _build_final_prompt(self, text_parts: list, num_images: int) -> str:
+        """Формирует финальный промпт с правильным количеством тегов <image>"""
+        # Извлекаем последний текстовый элемент или используем дефолтный промпт
+        original_prompt = text_parts[-1] if text_parts else "Describe the image"
+        
+        # Очищаем от существующих тегов
+        cleaned_prompt = original_prompt.replace("<image>", "").strip()
+        
+        # Генерируем необходимое количество тегов
+        image_tags = ' '.join(['<image>'] * num_images) if num_images > 0 else ''
+        
+        # Комбинируем части
+        if cleaned_prompt and image_tags:
+            return f"{cleaned_prompt} {image_tags}".strip()
+        if image_tags:
+            return image_tags
+        return cleaned_prompt or "Describe the image"
+        
     def _cleanup_tensors(self, inputs, generated_ids):
         """Исправленная версия с безопасной обработкой словаря"""
         # Создаем копию ключей для безопасной итерации

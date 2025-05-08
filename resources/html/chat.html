@@ -158,11 +158,9 @@
 
             addMessageToUI('user', content);
 
-            // Формируем историю сообщений
-            const messages = [
-                ...chatHistory.slice(-MAX_HISTORY * 2),
-                { role: 'user', content: message }
-            ];
+            // Формируем отправку с небольшой долей исторических сообщений
+            let messages = chatHistory.slice(-MAX_HISTORY * 2);
+            messages.push({"role": "user", "content": content});
             
             const btn = document.getElementById('sendButton');
             const originalText = btn.innerHTML;

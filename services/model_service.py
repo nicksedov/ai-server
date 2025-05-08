@@ -191,7 +191,7 @@ class ModelService:
             # 1. Проверяем теги репозитория
             tags = [tag.lower() for tag in self._get_huggingface_tags(model_id)]
             has_chat_tags = any(tag in tags for tag in [
-                'chat', 'conversational', 'text-generation', 'chat-completion', 'dialog'
+                'chat', 'conversational', 'text-generation', 'chat-completion', 'dialog', 'image-text-to-text'
             ])
             if has_chat_tags:
                 return True
