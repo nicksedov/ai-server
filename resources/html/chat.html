@@ -24,30 +24,120 @@
         
         <div class="chat-history" id="chatHistory"></div>
         
+        <!-- Добавим секцию для загрузки изображений -->
         <div class="input-group">
             <input type="text" 
-                    id="messageInput" 
-                    placeholder="Введите сообщение...">
+                id="messageInput" 
+                placeholder="Введите сообщение...">
             <button id="sendButton"><span>Отправить</span></button>
         </div>
+
+        <!-- Добавим новые элементы для работы с изображениями -->
+        <div id="imageUploadSection" style="display: none;">
+            <div class="image-controls">
+                <input type="file" 
+                    id="imageInput" 
+                    accept="image/*" 
+                    style="display: none;">
+                <button id="uploadImageButton" class="doc-link">
+                    <svg class="menu-icon" viewBox="0 0 24 24">
+                        <path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-4.86 8.86l-3 3.87L9 13.14 6 17h12l-3.86-5.14z"/>
+                    </svg>
+                    <span>Загрузить изображение</span>
+                </button>
+                <button id="removeImageButton" class="doc-link" style="display: none;">
+                    <svg class="menu-icon" viewBox="0 0 24 24">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                    <span>Удалить</span>
+                </button>
+            </div>
+            <div id="imagePreview" class="image-preview"></div>
+        </div>    
     </div>
 
     <script>
         let chatHistory = [];
         const MAX_HISTORY = 4;
 
+        // Добавим глобальные переменныe
+        let selectedModelInfo = {};
+        let currentImage = null;
+
+        // Обновим функцию загрузки моделей
         async function loadModels() {
             try {
                 const response = await fetch('/v1/models?chat=true');
                 const data = await response.json();
                 const select = document.getElementById('modelSelect');
                 
-                select.innerHTML = data.data
-                    .map(m => `<option value="${m.id}">${m.owned_by} » ${m.id}</option>`)
-                    .join('');
+                // Сохраняем информацию о моделях
+                const modelMap = {};
+                select.innerHTML = data.data.map(m => {
+                    modelMap[m.id] = {
+                        is_multimodal: m.is_multimodal,
+                        owned_by: m.owned_by
+                    };
+                    return `<option value="${m.id}">${m.owned_by} » ${m.id}</option>`;
+                }).join('');
+                
+                // Сохраняем информацию о моделях
+                window.modelInfoMap = modelMap;
+                
+                // Обработчик изменения модели
+                select.addEventListener('change', updateUIForModel);
+                
             } catch (e) {
                 console.error('Error loading models:', e);
             }
+        }
+
+        // Функция обновления UI при выборе модели
+        function updateUIForModel() {
+            const modelId = this.value;
+            selectedModelInfo = window.modelInfoMap[modelId] || {};
+            
+            const imageSection = document.getElementById('imageUploadSection');
+            if (selectedModelInfo.is_multimodal) {
+                imageSection.style.display = 'block';
+            } else {
+                imageSection.style.display = 'none';
+                clearImage(); // Сбрасываем изображение при смене модели
+            }
+        }
+
+        // Обработчики для загрузки изображений
+        document.getElementById('uploadImageButton').addEventListener('click', () => {
+            document.getElementById('imageInput').click();
+        });
+
+        document.getElementById('imageInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    currentImage = event.target.result;
+                    showImagePreview(currentImage);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function showImagePreview(dataUrl) {
+            const preview = document.getElementById('imagePreview');
+            preview.innerHTML = `<img src="${dataUrl}" alt="Preview">`;
+            
+            // Показываем кнопку удаления
+            document.getElementById('removeImageButton').style.display = 'inline-flex';
+        }
+
+        function clearImage() {
+            currentImage = null;
+            document.getElementById('imagePreview').innerHTML = '';
+            document.getElementById('imageInput').value = '';
+            
+            // Скрываем кнопку удаления
+            document.getElementById('removeImageButton').style.display = 'none';
         }
 
         async function sendMessage() {
@@ -55,11 +145,19 @@
             const modelSelect = document.getElementById('modelSelect');
             const apiKey = document.getElementById('apiKey').value;
             const message = messageInput.value.trim();
+            const modelId = modelSelect.value;
             
-            if (!message || !modelSelect.value || !apiKey) return;
+            if (!message || !modelId || !apiKey) return;
 
-            addMessageToUI('user', message);
-            
+            const content = [];
+            if (message) content.push({ type: "text", text: message });
+            if (currentImage) content.push({
+                type: "image_url",
+                image_url: { url: currentImage }
+            });
+
+            addMessageToUI('user', content);
+
             // Формируем историю сообщений
             const messages = [
                 ...chatHistory.slice(-MAX_HISTORY * 2),
@@ -119,30 +217,38 @@
             } finally {
                 btn.classList.remove('sending');
                 btn.disabled = false;
+                clearImage();
             }
         }
+
         function addMessageToUI(role, content) {
             const history = document.getElementById('chatHistory');
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${role}-message`;
             
-            // Рендеринг Markdown с санитизацией
-            const cleanHtml = DOMPurify.sanitize(marked.parse(content, {
-                breaks: true,
-                gfm: true,
-                smartypants: true
-            }));
+            let contentHtml = '';
+            if (Array.isArray(content)) {
+                content.forEach(item => {
+                    if (item.type === 'text') {
+                        contentHtml += marked.parse(item.text);
+                    } else if (item.type === 'image_url') {
+                        contentHtml += `<img src="${item.image_url.url}" class="message-image">`;
+                    }
+                });
+            } else {
+                contentHtml = marked.parse(content);
+            }
             
-            messageDiv.innerHTML = cleanHtml;
+            messageDiv.innerHTML = DOMPurify.sanitize(contentHtml);
             history.appendChild(messageDiv);
             history.scrollTop = history.scrollHeight;
         }
-
         // Инициализация
         document.getElementById('sendButton').addEventListener('click', sendMessage);
         document.getElementById('messageInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') sendMessage();
         });
+        document.getElementById('removeImageButton').addEventListener('click', clearImage);
 
         loadModels();
     </script>

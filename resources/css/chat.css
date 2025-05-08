@@ -164,3 +164,53 @@ select, .api-key-input {
     color: white;
     border-radius: 0.5rem;
 }
+
+.image-controls {
+    display: flex;
+    gap: 0.5rem;
+    margin: 0.5rem 0;
+}
+
+#removeImageButton {
+    background: linear-gradient(145deg, 
+        rgba(235, 87, 87, 0.15), 
+        rgba(235, 87, 87, 0.05));
+    border: 1px solid rgba(235, 87, 87, 0.15);
+}
+
+#removeImageButton:hover {
+    background: linear-gradient(145deg, 
+        rgba(235, 87, 87, 0.25), 
+        rgba(235, 87, 87, 0.15));
+}
+
+
+.image-preview {
+    margin: 1rem 0;
+    padding: 1rem;
+    background: #1E293B;
+    border-radius: 0.5rem;
+    border: 1px solid #334155;
+}
+
+.image-preview img {
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+    border: 2px solid #334155;
+}
+
+/* Адаптируем кнопки */
+#uploadImageButton {
+    background: linear-gradient(145deg, 
+        rgba(39, 174, 96, 0.15), 
+        rgba(39, 174, 96, 0.05));
+    border: 1px solid rgba(39, 174, 96, 0.15);
+}
+
+#uploadImageButton:hover {
+    background: linear-gradient(145deg, 
+        rgba(39, 174, 96, 0.25), 
+        rgba(39, 174, 96, 0.15));
+}
