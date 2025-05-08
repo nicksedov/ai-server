@@ -17,25 +17,37 @@ class MultimodalService:
         processor = self._load_processor(model_id)
         model = self._load_model(model_id)
         
-        # Process messages
-        inputs = await self._prepare_inputs(processor, request.messages)
-        
-        # Generate response
-        with torch.no_grad():
-            generated_ids = model.generate(**inputs, max_new_tokens=512)
-        
-        generated_text = processor.batch_decode(
-            generated_ids, 
-            skip_special_tokens=True
-        )[0]
+        try:
+            # Process messages and generate response
+            with torch.no_grad():
+                inputs = await self._prepare_inputs(processor, request.messages)
+                generated_ids = model.generate(**inputs, max_new_tokens=512)
+            
+                generated_text = processor.batch_decode(
+                    generated_ids, 
+                    skip_special_tokens=True
+                )[0]
 
-        inputs.to("cpu")
-        
-        del model
-        del processor
-        self.flush()
-
-        return self._format_response(request, generated_text)
+                # Явно освобождаем память
+                inputs = {k: v.to("cpu") if isinstance(v, torch.Tensor) else v for k, v in inputs.items()}
+                generated_ids = generated_ids.to("cpu")
+                
+                return self._format_response(request, generated_text)
+        finally:
+            # Гарантированное освобождение ресурсов
+            if 'inputs' in locals():
+                del inputs
+            if 'generated_ids' in locals():
+                del generated_ids
+            
+            # Удаление модели и процессора
+            if 'model' in locals():
+                del model
+                torch.cuda.empty_cache()
+            if 'processor' in locals():
+                del processor
+            
+            self.flush()
 
     def _load_model(self, model_id):
         logger.info(f"Loading multimodal model: {model_id}")
