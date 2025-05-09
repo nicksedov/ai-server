@@ -4,7 +4,7 @@ __pycache__/
 *.pyd
 .DS_Store
 .env
-venv/
+lib/
 *.log
 *.sqlite
 *.prompt
