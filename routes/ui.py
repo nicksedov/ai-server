@@ -22,19 +22,19 @@ async def index():
 
 @router.get('/favicon.ico')
 async def favicon():
-    return FileResponse('resources/favicon.ico')
+    return FileResponse('static/favicon.ico')
 
 @router.get('/html/{html_file}')
 async def html(html_file: str):
-    return FileResponse(f'resources/html/{html_file}', media_type='text/html')
+    return FileResponse(f'static/html/{html_file}', media_type='text/html')
 
 @router.get('/css/{css_file}')
 async def css(css_file: str):
-    return FileResponse(f'resources/css/{css_file}', media_type='text/css')
+    return FileResponse(f'static/css/{css_file}', media_type='text/css')
     
 @router.get('/img/{img_file}')
 async def image(img_file: str):
-    file_path = f'resources/img/{img_file}'
+    file_path = f'static/img/{img_file}'
     # Получаем расширение файла из имени
     file_extension = os.path.splitext(img_file)[1].lower().lstrip('.')
     # Получаем соответствующий MIME-тип или используем значение по умолчанию

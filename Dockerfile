@@ -31,7 +31,7 @@ COPY *.yaml .
 COPY schemas/ ./schemas/
 COPY routes/ ./routes/
 COPY services/ ./services/
-COPY resources/ ./resources/
+COPY static/ ./static/
 
 EXPOSE 7999 11434
 
