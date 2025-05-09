@@ -7,7 +7,7 @@ __pycache__/
 venv/
 *.log
 *.sqlite
+*.prompt
 .git/
 .idea/
 deploy.sh
-generated_prompt.md
