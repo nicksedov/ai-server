@@ -17,7 +17,7 @@ server:
       valid_from: "2025-04-01T00:00:00+03:00"
       valid_until: "2025-05-01T00:00:00+03:00"
       enabled: true
-    - key: "  "
+    - key: "7dfQZb6fSq0j"
       name: "Пользовательский ключ на май 2025"
       valid_from: "2025-05-01T00:00:00+03:00"
       valid_until: "2025-06-01T00:00:00+03:00"
