@@ -8,6 +8,7 @@ import uuid
 import time
 import gc
 from contextlib import contextmanager
+from .ollama_client import OllamaClient
 
 logger = logging.getLogger(__name__)
 
@@ -24,13 +25,19 @@ class GPUMemoryManager:
 
 class MultimodalService:
     def __init__(self):
+        self.ollama_client = OllamaClient()
         self._memory_logging = True
 
     async def process_request(self, request, provider):
-        with GPUMemoryManager.scope():
-            return await self._process_request_internal(request, provider)
+        if provider == "huggingface":
+            with GPUMemoryManager.scope():
+                return await self._process_huggingface_request(request)
+        elif provider == "ollama":
+            return await self._process_ollama_request(request)
+        raise HTTPException(400, "Unsupported provider for multimodal model")
 
-    async def _process_request_internal(self, request, provider):
+    # Hugging Face model processing
+    async def _process_huggingface_request(self, request):
         model_id = request.model
         self.log_memory_usage("Before model loading")
         
@@ -198,3 +205,49 @@ class MultimodalService:
                 "finish_reason": "stop"
             }]
         }
+
+    # Ollama model processing
+    async def _process_ollama_request(self, request):
+        messages = await self._prepare_ollama_messages(request.messages)
+        payload = {
+            "model": request.model,
+            "messages": messages,
+            "stream": request.stream,
+            "options": {
+                "temperature": request.temperature,
+                "top_p": request.top_p
+            }
+        }
+        
+        try:
+            response = await self.ollama_client.chat(payload)
+            return self._format_response(request, response['message']['content'])
+        except Exception as e:
+            logger.error(f"Ollama processing failed: {str(e)}")
+            raise HTTPException(500, "Multimodal processing error")
+
+    async def _prepare_ollama_messages(self, messages):
+        prepared = []
+        for msg in messages:
+            if isinstance(msg.content, list):
+                content = []
+                images = []
+                for item in msg.content:
+                    if item.type == "text":
+                        content.append(item.text)
+                    elif item.type == "image_url":
+                        base64_image = await self._decode_image_to_base64(item.image_url['url'])
+                        images.append(base64_image)
+                prepared.append({
+                    "role": msg.role,
+                    "content": "\n".join(content),
+                    "images": images
+                })
+            else:
+                prepared.append(msg.dict())
+        return prepared
+
+    async def _decode_image_to_base64(self, url: str) -> str:
+        if url.startswith("data:image"):
+            return url.split(",")[1]
+        raise HTTPException(400, "Only embedded images are supported")

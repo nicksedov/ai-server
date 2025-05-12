@@ -227,13 +227,18 @@ class ModelService:
                 timeout=config.ollama.timeout
             )
             response.raise_for_status()
-            details = response.json()
+            metadata = response.json()
             
             # Анализ параметров модели
-            return details.get('capabilities')
+            tags = metadata.get('capabilities')
+
+            family = metadata.get('details', {}).get('family')
+            if (family):
+                tags.append(family)
+            return tags    
         except Exception as e:
             logger.warning(f"Can't get Ollama model tags: {str(e)}")
             return []
 
     def _is_multimodal(self, tags: List[str]) -> bool:
-        return any(tag in tags for tag in ["multimodal", "vision", "vl", "image-text-to-text"])
+        return any(tag in tags for tag in ["multimodal", "vision", "vl", "qwen2vl", "image-text-to-text"])

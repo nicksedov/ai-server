@@ -29,13 +29,13 @@ async def chat_completion(
     try:
         model_cache.validate_model(body.model)
         provider = model_cache.get_provider(body.model)
-        
-        if provider=="huggingface" and model_cache.is_multimodal(body.model):
+           
+        if model_cache.is_multimodal(body.model) and is_image_attached(body):
             return await multimodal_service.process_request(body, provider)
-        
+
         if is_image_request(body):
             return await image_chat_service.handle_image_request(body)
-            
+
         return await chat_service.process_text_request(body, provider)
     except HTTPException as he:
         raise he
@@ -43,8 +43,25 @@ async def chat_completion(
         logger.error(f"Error processing request: {str(e)}", exc_info=True)
         raise HTTPException(500, detail=str(e))
 
-def is_image_request(request: ChatCompletionRequest) -> bool:
+def is_image_attached(request: ChatCompletionRequest) -> bool:
     for msg in reversed(request.messages):
         if msg.role == "user" and msg.content:
-            return classifier.is_image_request(msg.content)
+            if isinstance(msg.content, list):
+                for item in msg.content:
+                    if item.type == "image_url" and item.image_url:
+                        return True
+            return False
+
+
+def is_image_request(request: ChatCompletionRequest) -> bool:
+    text = ''
+    for msg in reversed(request.messages):
+        if msg.role == "user" and msg.content:
+            if isinstance(msg.content, list):
+                for item in msg.content:
+                    if item.type == "text":
+                        text = '\n'.join([text, item.text])
+            elif isinstance(msg.content, str):
+                text = msg.content
+            return classifier.is_image_request(text)
     raise HTTPException(400, "No user message found")

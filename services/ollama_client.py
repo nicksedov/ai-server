@@ -10,7 +10,8 @@ class OllamaClient:
         response = requests.post(
             f"{self.base_url}/api/chat",
             json=payload,
-            timeout=self.timeout
+            timeout=self.timeout,
+            headers={"Content-Type": "application/json"}
         )
         response.raise_for_status()
         return response.json()

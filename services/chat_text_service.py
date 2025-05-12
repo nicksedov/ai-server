@@ -89,9 +89,17 @@ class ChatTextService:
         ) + "\nASSISTANT: "
 
     def _prepare_ollama_payload(self, request: ChatCompletionRequest):
+        messages = []
+        for msg in request.messages:
+            if isinstance(msg.content, list):
+                for c in msg.content:
+                    if c.type == "text":
+                        messages.append({"role": msg.role, "content": c.text})
+            else:
+                messages.append(msg.dict())
         return {
             "model": request.model,
-            "messages": [m.dict() for m in request.messages],
+            "messages": messages,
             "options": {
                 "temperature": request.temperature,
                 "top_p": request.top_p,
